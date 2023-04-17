@@ -341,21 +341,21 @@ class QTargetKGM(QTargetInterface):
             np.ndarray: The result of Stein kernel function.
         """
         # IMQ
-        c0_imq = lambda x, s: (1 + x@self.linv@x)**(s-1)
-        c1_imq = lambda x, s: (s - 1)*(1 + x@self.linv@x)**(s-2) * (self.linv @ x)
-        c2_imq = lambda x, s: (1 + x@self.linv@x)**(s-1) * (((s-1)**2 * x@self.linv@self.linv@x)/((1 + x@self.linv@x)**2) + np.trace(self.linv))
+        c0_imq = (1 + x@self.linv@x)**(self.s-1)
+        c1_imq = (self.s - 1)*(1 + x@self.linv@x)**(self.s-2) * (self.linv @ x)
+        c2_imq = (1 + x@self.linv@x)**(self.s-1) * (((self.s-1)**2 * x@self.linv@self.linv@x)/((1 + x@self.linv@x)**2) + np.trace(self.linv))
 
         # Linear
-        c0_lin = lambda x, s: (1 + x@self.linv@x)**s
-        c1_lin = lambda x, s: s * ((1 + x@self.linv@x)**(s-1)) * (self.linv@x)
-        c2_lin = lambda x, s: ((1 + x@self.linv@x)**(s-1)) * ((s**2 - 1) * (x@self.linv@self.linv@x) / (1 + x@self.linv@x) + np.trace(self.linv))
+        c0_lin = 1.0
+        c1_lin = 0.0
+        c2_lin = ((1 + x@self.linv@x)**(-1)) * ((-1) * (x@self.linv@self.linv@x) / (1 + x@self.linv@x) + np.trace(self.linv))
 
         # KGM
-        c0_kgm = lambda x, s: c0_imq(x, s) + c0_lin(x, 0.0)
-        c1_kgm = lambda x, s: c1_imq(x, s) + c1_lin(x, 0.0)
-        c2_kgm = lambda x, s: c2_imq(x, s) + c2_lin(x, 0.0)
+        c0_kgm = c0_imq + c0_lin
+        c1_kgm = c1_imq + c1_lin
+        c2_kgm = c2_imq + c2_lin
 
-        return c2_kgm(x, self.s) + 2*c1_kgm(x, self.s)@self.grad_log_p(x) + c0_kgm(x, self.s)*self.grad_log_p(x)@self.grad_log_p(x)
+        return c2_kgm + 2*c1_kgm@self.grad_log_p(x) + c0_kgm*self.grad_log_p(x)@self.grad_log_p(x)
 
     def grad_stein_kernel(self, x):
         """
@@ -368,40 +368,40 @@ class QTargetKGM(QTargetInterface):
             np.ndarray: The result of Gradient of Stein Kernel Function.
         """
         # IMQ
-        c0_imq = lambda x, s: (1 + x@self.linv@x)**(s-1)
-        c1_imq = lambda x, s: (s - 1)*(1 + x@self.linv@x)**(s-2) * (self.linv @ x)
+        c0_imq = (1 + x@self.linv@x)**(self.s-1)
+        c1_imq = (self.s - 1)*(1 + x@self.linv@x)**(self.s-2) * (self.linv @ x)
 
-        grad_c0_imq = lambda x, s: 2 * (s-1) * (1+x@self.linv@x)**(s-2) * (self.linv@x)
-        grad_c1_imq = lambda x, s: (s-1) * ((1 + x@self.linv@x)**(s-2)) * ((2*(s-2)*np.outer(self.linv@x, self.linv@x))/(1+x@self.linv@x) + self.linv)
-        grad_c2_imq = lambda x, s: 2 * (s-1) * ((1 + x@self.linv@x)**(s-2)) * (
-            (s**2 - 4*s + 3) * (x@self.linv@self.linv@x) * (self.linv@x) / ((1 + x@self.linv@x)**2) +\
-            (s - 1) * (self.linv@self.linv@x) / (1 + x@self.linv@x) +\
+        grad_c0_imq = 2 * (self.s-1) * (1+x@self.linv@x)**(self.s-2) * (self.linv@x)
+        grad_c1_imq = (self.s-1) * ((1 + x@self.linv@x)**(self.s-2)) * ((2*(self.s-2)*np.outer(self.linv@x, self.linv@x))/(1+x@self.linv@x) + self.linv)
+        grad_c2_imq = 2 * (self.s-1) * ((1 + x@self.linv@x)**(self.s-2)) * (
+            (self.s**2 - 4*self.s + 3) * (x@self.linv@self.linv@x) * (self.linv@x) / ((1 + x@self.linv@x)**2) +\
+            (self.s - 1) * (self.linv@self.linv@x) / (1 + x@self.linv@x) +\
             np.trace(self.linv)*(self.linv@x)
         )
 
         # Linear
-        c0_lin = lambda x, s: (1 + x@self.linv@x)**s
-        c1_lin = lambda x, s: s * ((1 + x@self.linv@x)**(s-1)) * (self.linv@x)
+        c0_lin = 1.0
+        c1_lin = 0.0
 
-        grad_c0_lin = lambda x, s: 2 * s * ((1+x@self.linv@x)**(s-1)) * (self.linv@x)
-        grad_c1_lin = lambda x, s: s * ((1+x@self.linv@x)**(s-1)) * (2*(s-1)* np.outer(self.linv@x, self.linv@x) / (1 + x@self.linv@x) + self.linv)
-        grad_c2_lin = lambda x, s: 2 * (s - 1) * ((1+x@self.linv@x)**(s-2)) * (
-            (s + 1) * (s - 2) * (x@self.linv@self.linv@x) * (self.linv@x) / (1 + x@self.linv@x) +\
-            (s + 1) * (self.linv@self.linv@x)+\
+        grad_c0_lin = 0.0
+        grad_c1_lin = 0.0
+        grad_c2_lin = 2 * (-1) * ((1+x@self.linv@x)**(-2)) * (
+            (-2) * (x@self.linv@self.linv@x) * (self.linv@x) / (1 + x@self.linv@x) +\
+            (self.linv@self.linv@x) +\
             np.trace(self.linv)*(self.linv@x)
         )
 
         # KGM
-        c0_kgm = lambda x, s: c0_imq(x, s) + c0_lin(x, 0.0)
-        c1_kgm = lambda x, s: c1_imq(x, s) + c1_lin(x, 0.0)
+        c0_kgm = c0_imq + c0_lin
+        c1_kgm = c1_imq + c1_lin
 
-        grad_c0_kgm = lambda x, s: grad_c0_imq(x, s) + grad_c0_lin(x, 0.0)
-        grad_c1_kgm = lambda x, s: grad_c1_imq(x, s) + grad_c1_lin(x, 0.0)
-        grad_c2_kgm = lambda x, s: grad_c2_imq(x, s) + grad_c2_lin(x, 0.0)
+        grad_c0_kgm = grad_c0_imq + grad_c0_lin
+        grad_c1_kgm = grad_c1_imq + grad_c1_lin
+        grad_c2_kgm = grad_c2_imq + grad_c2_lin
 
-        return grad_c2_kgm(x, self.s) + 2 * grad_c1_kgm(x, self.s)@self.grad_log_p(x) +\
-                2 * self.hess_log_p(x) @ c1_kgm(x, self.s) + grad_c0_kgm(x, self.s) * (self.grad_log_p(x)@self.grad_log_p(x)) +\
-                2 * c0_kgm(x, self.s) * self.hess_log_p(x)@self.grad_log_p(x)
+        return grad_c2_kgm + 2 * grad_c1_kgm@self.grad_log_p(x) +\
+                2 * self.hess_log_p(x) @ c1_kgm + grad_c0_kgm * (self.grad_log_p(x)@self.grad_log_p(x)) +\
+                2 * c0_kgm * self.hess_log_p(x)@self.grad_log_p(x)
 
     def log_q(self, x):
         """
