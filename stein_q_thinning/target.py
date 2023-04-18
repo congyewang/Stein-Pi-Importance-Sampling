@@ -41,11 +41,11 @@ class QTargetInterface(metaclass=ABCMeta):
         """
         raise NotImplementedError
 
-    def reproducing_kernel(self):
+    def base_kernel(self):
         """
-        Abstract Method for Reproducing Kernel Function.
+        Abstract Method for Base Kernel Function.
 
-        Reproducing Kernel Function, which can yields a Stein kernel.
+        Base Kernel Function, which can yields a Stein kernel.
             Refactor this method for calculation of Stein kernel in the auto-differential Child class.
         """
         raise NotImplementedError
@@ -101,16 +101,16 @@ class QTargetAuto(QTargetInterface):
     Args:
         QTargetInterface (class): Interface to Q-invariant Target Distribution.
     """
-    def __init__(self, log_p, reproducing_kernel) -> None:
+    def __init__(self, log_p, base_kernel) -> None:
         """
         Destructor Function for QTargetAuto class.
 
         Args:
             log_p (func): Probability Density Function in Logarithmic form.
-            reproducing_kernel (func): Reproducing Kernel Function.
+            base_kernel (func): base Kernel Function.
         """
         super().__init__(log_p)
-        self.reproducing_kernel = reproducing_kernel
+        self.base_kernel = base_kernel
 
     def grad_log_p(self, x):
         """
@@ -130,24 +130,24 @@ class QTargetAuto(QTargetInterface):
         """
         return jit(jacfwd(self.grad_log_p))(x)
 
-    def reproducing_kernel(self):
+    def base_kernel(self):
         """
-        Reproducing Kernel Function.
+        Base Kernel Function.
 
-        Reproducing Kernel Function, which can yields a Stein kernel.
+        Base Kernel Function, which can yields a Stein kernel.
             Refactor this method for calculation of Stein kernel in the auto-differential Child class.
 
         Args:
             x (np.ndarray): Input.
 
         Returns:
-            np.ndarray: The result of Reproducing Kernel Function.
+            np.ndarray: The result of Base Kernel Function.
         """
-        return self.reproducing_kernel
+        return self.base_kernel
 
     def stein_kernel(self, x):
         """
-        Using the combination of Langevin-Stein operator and a specific reproducing kernel Function to yield Stein kernel.
+        Using the combination of Langevin-Stein operator and a specific base kernel Function to yield Stein kernel.
 
         Args:
             x (np.ndarray): Input.
@@ -155,13 +155,13 @@ class QTargetAuto(QTargetInterface):
         Returns:
             np.ndarray: The result of Stein kernel function.
         """
-        dx_k = jit(jacfwd(self.reproducing_kernel, argnums=0))
-        dy_k = jit(jacfwd(self.reproducing_kernel, argnums=1))
+        dx_k = jit(jacfwd(self.base_kernel, argnums=0))
+        dy_k = jit(jacfwd(self.base_kernel, argnums=1))
         dxdy_k = jit(jacfwd(dy_k, argnums=0))
         kp = jit(lambda x, y: jnp.trace(dxdy_k(x, y))\
                         + dx_k(x, y) @ self.grad_log_p(y)\
                         + dy_k(x, y) @ self.grad_log_p(x)\
-                        + self.reproducing_kernel(x, y) * self.grad_log_p(x) @ self.grad_log_p(y))
+                        + self.base_kernel(x, y) * self.grad_log_p(x) @ self.grad_log_p(y))
         return kp(x, x)
 
     def grad_stein_kernel(self, x):
@@ -202,7 +202,7 @@ class QTargetAuto(QTargetInterface):
 
 class QTargetIMQ(QTargetInterface):
     """
-    Using Inverse Multi-Quadric Kernel as the reproducing kernel to generate Q-invariant Target Distribution.
+    Using Inverse Multi-Quadric Kernel as the base kernel to generate Q-invariant Target Distribution.
 
     Args:
         QTargetInterface (class): Interface to Q-invariant Target Distribution.
@@ -242,7 +242,7 @@ class QTargetIMQ(QTargetInterface):
 
     def stein_kernel(self, x):
         """
-        Using the combination of Langevin-Stein operator and inverse multi-quadric reproducing kernel Function to yield Stein kernel.
+        Using the combination of Langevin-Stein operator and inverse multi-quadric base kernel Function to yield Stein kernel.
 
         Args:
             x (np.ndarray): Input.
@@ -290,7 +290,7 @@ class QTargetIMQ(QTargetInterface):
 
 class QTargetKGM(QTargetInterface):
     """
-    Using Kanagawa-Gretton-Mackey Kernel as the reproducing kernel to generate Q-invariant Target Distribution.
+    Using Kanagawa-Gretton-Mackey Kernel as the base kernel to generate Q-invariant Target Distribution.
 
     Args:
         QTargetInterface (class): Interface to Q-invariant Target Distribution.
@@ -332,7 +332,7 @@ class QTargetKGM(QTargetInterface):
 
     def stein_kernel(self, x):
         """
-        Using the combination of Langevin-Stein operator and kernel gradient matching reproducing kernel Function to yield Stein kernel.
+        Using the combination of Langevin-Stein operator and kernel gradient matching base kernel Function to yield Stein kernel.
 
         Args:
             x (np.ndarray): Input.
