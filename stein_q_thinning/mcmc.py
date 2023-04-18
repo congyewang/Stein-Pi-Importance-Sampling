@@ -61,7 +61,7 @@ def mala(log_pdf, grad_log_pdf, theta_start, eps, premat, iteration):
             g[i] = g[i - 1]
             p[i] = p[i - 1]
 
-    return (x, g, p, a)
+    return x, g, p, a
 
 def mala_adapt(log_pdf, grad_log_pdf, theta_start, eps0, premat0, alpha, epoch):
     """
@@ -110,4 +110,4 @@ def mala_adapt(log_pdf, grad_log_pdf, theta_start, eps0, premat0, alpha, epoch):
         theta_start_new = x[i - 1][-1]
         x[i], g[i], p[i], a[i] = mala(log_pdf, grad_log_pdf, theta_start_new, eps, premat, epoch[i])
 
-    return (eps, premat, x, g, p, a)
+    return eps, premat, x, g, p, a

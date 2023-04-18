@@ -304,7 +304,7 @@ class QTargetKGM(QTargetInterface):
             grad_log_p (function): Gradient of Logarithmic Probability Density Function.
             hess_log_p (function): Hessian of Logarithmic Probability Density Function.
             linv (np.ndarray): Inverse of the Covariance Matrix.
-            s (float): Control Parameter.
+            s (int): Control Parameter.
         """
         super().__init__(log_p)
         self.grad_log_p = grad_log_p
