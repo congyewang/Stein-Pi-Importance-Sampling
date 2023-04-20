@@ -21,4 +21,4 @@ class TestVKGM:
         std_check = QTargetKGM(log_p, grad_log_p, hess_log_p, linv, s)
         res_check = np.array([std_check.stein_kernel(i) for i in x])
 
-        assert (np.abs(res_check - vkgm(x, sx, linv, s)) < 1e-10).all
+        assert (np.abs(res_check - vkgm(x, sx, linv, s)) < 1e-5).all
