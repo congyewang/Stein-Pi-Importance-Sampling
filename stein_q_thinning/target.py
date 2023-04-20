@@ -421,7 +421,7 @@ class QTargetCentKGM(QTargetManual):
     Args:
         QTargetInterface (class): Interface to Q-invariant Target Distribution.
     """
-    def __init__(self, log_p, grad_log_p, hess_log_p, linv, s, x_map=None) -> None:
+    def __init__(self, log_p, grad_log_p, hess_log_p, linv, s, x_map) -> None:
         """
         Destructor Function for QTargetKGM class.
 
@@ -436,13 +436,7 @@ class QTargetCentKGM(QTargetManual):
         super().__init__(log_p, grad_log_p, hess_log_p, linv)
         self.s = s
         self.beta = 0.5
-        if x_map is None:
-            self.x_map = minimize(fun=lambda x: -log_p(x),\
-               x0=np.zeros(len(linv)), method="BFGS",\
-               options={"maxiter": 10000}
-               ).x
-        else:
-            self.x_map = x_map
+        self.x_map = x_map
 
     def stein_kernel(self, x):
         c0 = 1 + (1 + (x-self.x_map)@self.linv@(x-self.x_map.T))**(self.s-1)
