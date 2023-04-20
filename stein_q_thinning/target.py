@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 import numpy as np
 from jax import numpy as jnp
 from jax import jit, jacfwd
+from scipy.optimize import minimize
 
 
 class QTargetInterface(metaclass=ABCMeta):
@@ -200,9 +201,9 @@ class QTargetAuto(QTargetInterface):
         """
         return jit(jacfwd(lambda x: self.log_q(x)))(x)
 
-class QTargetIMQ(QTargetInterface):
+class QTargetManual(QTargetInterface):
     """
-    Using Inverse Multi-Quadric Kernel as the base kernel to generate Q-invariant Target Distribution.
+    Using numpy to generate Q-invariant Target Distribution manually.
 
     Args:
         QTargetInterface (class): Interface to Q-invariant Target Distribution.
@@ -242,27 +243,15 @@ class QTargetIMQ(QTargetInterface):
 
     def stein_kernel(self, x):
         """
-        Using the combination of Langevin-Stein operator and inverse multi-quadric base kernel Function to yield Stein kernel.
-
-        Args:
-            x (np.ndarray): Input.
-
-        Returns:
-            np.ndarray: The result of Stein kernel function.
+        Stein Kernel Function.
         """
-        return np.trace(self.linv) + self.grad_log_p(x) @ self.grad_log_p(x)
+        return 1
 
     def grad_stein_kernel(self, x):
         """
         Gradient of Stein Kernel Function.
-
-        Args:
-            x (np.ndarray): Input.
-
-        Returns:
-            np.ndarray: The result of Gradient of Stein Kernel Function.
         """
-        return 2 * self.grad_log_p(x) * self.hess_log_p(x)
+        return 1
 
     def log_q(self, x):
         """
@@ -286,9 +275,52 @@ class QTargetIMQ(QTargetInterface):
         Returns:
             np.ndarray: The result of Gradient of Q-invariant Target Distribution as Probability Density Function in Logarithmic form.
         """
-        return (self.hess_log_p(x) @ self.grad_log_p(x))/self.stein_kernel(x) + self.grad_log_p(x)
+        return 0.5 * self.grad_stein_kernel(x)/self.stein_kernel(x) + self.grad_log_p(x)
 
-class QTargetKGM(QTargetInterface):
+class QTargetIMQ(QTargetManual):
+    """
+    Using Inverse Multi-Quadric Kernel as the base kernel to generate Q-invariant Target Distribution.
+
+    Args:
+        QTargetInterface (class): Interface to Q-invariant Target Distribution.
+    """
+    def __init__(self, log_p, grad_log_p, hess_log_p, linv) -> None:
+        """
+        Destructor Function for QTargetIMQ class.
+
+        Args:
+            log_p (function): Probability Density Function in Logarithmic form.
+            grad_log_p (function): Gradient of Logarithmic Probability Density Function.
+            hess_log_p (function): Hessian of Logarithmic Probability Density Function.
+            linv (np.ndarray): Inverse of the Covariance Matrix.
+        """
+        super().__init__(log_p, grad_log_p, hess_log_p, linv)
+
+    def stein_kernel(self, x):
+        """
+        Using the combination of Langevin-Stein operator and inverse multi-quadric base kernel Function to yield Stein kernel.
+
+        Args:
+            x (np.ndarray): Input.
+
+        Returns:
+            np.ndarray: The result of Stein kernel function.
+        """
+        return np.trace(self.linv) + self.grad_log_p(x) @ self.grad_log_p(x)
+
+    def grad_stein_kernel(self, x):
+        """
+        Gradient of Stein Kernel Function.
+
+        Args:
+            x (np.ndarray): Input.
+
+        Returns:
+            np.ndarray: The result of Gradient of Stein Kernel Function.
+        """
+        return 2 * self.grad_log_p(x) @ self.hess_log_p(x)
+
+class QTargetKGM(QTargetManual):
     """
     Using Kanagawa-Gretton-Mackey Kernel as the base kernel to generate Q-invariant Target Distribution.
 
@@ -306,29 +338,8 @@ class QTargetKGM(QTargetInterface):
             linv (np.ndarray): Inverse of the Covariance Matrix.
             s (int): Control Parameter.
         """
-        super().__init__(log_p)
-        self.grad_log_p = grad_log_p
-        self.hess_log_p = hess_log_p
-        self.linv = linv
+        super().__init__(log_p, grad_log_p, hess_log_p, linv)
         self.s = s
-
-    def grad_log_p(self, x):
-        """
-        Gradient of Logarithmic Probability Density Function.
-
-        Returns:
-            func: Gradient of Logarithmic Probability Density Function.
-        """
-        return self.grad_log_p(x)
-
-    def hess_log_p(self, x):
-        """
-        Hessian of Logarithmic Probability Density Function.
-
-        Returns:
-            func: Hessian of Logarithmic Probability Density Function.
-        """
-        return self.hess_log_p(x)
 
     def stein_kernel(self, x):
         """
@@ -403,26 +414,56 @@ class QTargetKGM(QTargetInterface):
                 2 * self.hess_log_p(x) @ c1_kgm + grad_c0_kgm * (self.grad_log_p(x)@self.grad_log_p(x)) +\
                 2 * c0_kgm * self.hess_log_p(x)@self.grad_log_p(x)
 
-    def log_q(self, x):
+class QTargetCentKGM(QTargetManual):
+    """
+    Using Centralized Kanagawa-Gretton-Mackey Kernel as the base kernel to generate Q-invariant Target Distribution.
+
+    Args:
+        QTargetInterface (class): Interface to Q-invariant Target Distribution.
+    """
+    def __init__(self, log_p, grad_log_p, hess_log_p, linv, s, x_map=None) -> None:
         """
-        Q-invariant Target Distribution as Probability Density Function in Logarithmic form.
+        Destructor Function for QTargetKGM class.
 
         Args:
-            x (np.ndarray): Input.
-
-        Returns:
-            float: The result of Q-invariant Target Distribution as Probability Density Function in Logarithmic form.
+            log_p (function): Probability Density Function in Logarithmic form.
+            grad_log_p (function): Gradient of Logarithmic Probability Density Function.
+            hess_log_p (function): Hessian of Logarithmic Probability Density Function.
+            linv (np.ndarray): Inverse of the Covariance Matrix.
+            s (int): Control Parameter.
+            x_map (np.ndarray||None): The Map of Probability Density Function in Logarithmic form.
         """
-        return self.log_p(x) + 0.5 * np.log(self.stein_kernel(x))
+        super().__init__(log_p, grad_log_p, hess_log_p, linv)
+        self.s = s
+        self.beta = 0.5
+        if x_map is None:
+            self.x_map = minimize(fun=lambda x: -log_p(x),\
+               x0=np.zeros(len(linv)), method="BFGS",\
+               options={"maxiter": 10000}
+               ).x
+        else:
+            self.x_map = x_map
 
-    def grad_log_q(self, x):
-        """
-        Gradient of Q-invariant Target Distribution as Probability Density Function in Logarithmic form.
+    def stein_kernel(self, x):
+        c0 = 1 + (1 + (x-self.x_map)@self.linv@(x-self.x_map.T))**(self.s-1)
+        c1 = (self.s-1)*(1 + (x-self.x_map)@self.linv@(x-self.x_map.T))**(self.s-2) * self.linv@(x-self.x_map).T
+        c2 = ( ((self.s-1)**2*(1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**(self.s-1) - 1)*(x-self.x_map)@self.linv@self.linv@(x-self.x_map).T )/( (1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**2 ) + (np.trace(self.linv)*( 1 + 2*self.beta *(1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**self.s ) )/( (1 + (x-self.x_map)@self.linv@(x-self.x_map).T) )
 
-        Args:
-            x (np.ndarray): Input.
+        return c2 + 2*c1@self.grad_log_p(x) + c0*self.grad_log_p(x)@self.grad_log_p(x)
 
-        Returns:
-            np.ndarray: The result of Gradient of Q-invariant Target Distribution as Probability Density Function in Logarithmic form.
-        """
-        return 0.5 * self.grad_stein_kernel(x)/self.stein_kernel(x) + self.grad_log_p(x)
+    def grad_stein_kernel(self, x):
+        c0 = 1 + (1 + (x-self.x_map)@self.linv@(x-self.x_map.T))**(self.s-1)
+        c1 = (self.s-1)*(1 + (x-self.x_map)@self.linv@(x-self.x_map.T))**(self.s-2) * self.linv@(x-self.x_map).T
+
+        grad_c0 = 2*(self.s-1)*(1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**(self.s-2) * self.linv@(x-self.x_map).T
+        grad_c1 = 2*(self.s-1)*(self.s-2)*(1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**(self.s-3) * jnp.outer(self.linv@(x-self.x_map).T, self.linv@(x-self.x_map).T)\
+            + (self.s-1)*(1 + (x-self.x_map)@self.linv@(x-self.x_map))**(self.s-2) * self.linv
+        grad_c2 = 2*(self.s-1)**2*(self.s-3)*(1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**(self.s-4) * ((x-self.x_map)@self.linv@self.linv@(x-self.x_map).T) * self.linv@(x-self.x_map)\
+            + 2 * (self.s-1)**2 * (1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**(self.s-3)* self.linv@self.linv@(x-self.x_map)\
+            + 4 * self.beta * jnp.trace(self.linv) * (self.s-1) * (1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**(self.s-2) * self.linv@(x-self.x_map)\
+            - 2 * (1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**(-2) * ( self.linv@self.linv@(x-self.x_map).T + jnp.trace(self.linv)* self.linv@(x-self.x_map) )\
+            + 4 * (1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**(-3) * ((x-self.x_map)@self.linv@self.linv@(x-self.x_map).T) * self.linv@(x-self.x_map)
+
+        return grad_c2 + 2 * grad_c1@self.grad_log_p(x) +\
+                2 * self.hess_log_p(x) @ c1 + grad_c0 * (self.grad_log_p(x)@self.grad_log_p(x)) +\
+                2 * c0 * self.hess_log_p(x)@self.grad_log_p(x)
