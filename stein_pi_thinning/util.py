@@ -9,7 +9,7 @@ from jax import numpy as jnp
 from jax import jit
 from jax.scipy.stats import norm, multivariate_normal
 
-from mcmclib.metropolis import mala_adapt
+from stein_pi_thinning.mcmc import mala_adapt
 from stein_pi_thinning.target import PiTargetAuto
 
 
