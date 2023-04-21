@@ -1,4 +1,4 @@
-from stein_q_thinning.progress_bar import tqdm
+from stein_pi_thinning.progress_bar import tqdm
 import numpy as np
 from scipy.stats import multivariate_normal
 from statsmodels.stats.correlation_tools import cov_nearest

@@ -4,6 +4,7 @@ from scipy.stats import wishart
 from jax import numpy as jnp
 from jax import jacrev, jacfwd
 
+
 dim = np.random.randint(2, 30)
 beta = 0.5
 s = np.random.randint(2, 10)
@@ -13,6 +14,7 @@ linv = jnp.array(wishart.rvs(dim + 10, scale=np.eye(dim), size=1))
 
 x = jnp.array(np.random.normal(size=dim))
 y = jnp.array(np.random.normal(size=dim))
+
 
 class TestCentralKGM:
     def k(self, x, y):

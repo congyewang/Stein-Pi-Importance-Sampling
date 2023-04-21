@@ -2,18 +2,17 @@ from abc import ABCMeta, abstractmethod
 import numpy as np
 from jax import numpy as jnp
 from jax import jit, jacfwd
-from scipy.optimize import minimize
 
 
-class QTargetInterface(metaclass=ABCMeta):
+class PiTargetInterface(metaclass=ABCMeta):
     """
-    Interface to Q-invariant Target Distribution, which can only be inherited, prohibites directly instantiated.
+    Interface to Pi-invariant Target Distribution, which can only be inherited, prohibites directly instantiated.
 
     Args:
         metaclass (class): Interface Class, which defaults to ABCMeta.
     """
     def __init__(self, log_p) -> None:
-        """Destructor Function for QTargetInterface class.
+        """Destructor Function for PiTargetInterface class.
 
         Args:
             log_p (func): Probability Density Function in Logarithmic form.
@@ -76,10 +75,10 @@ class QTargetInterface(metaclass=ABCMeta):
     @abstractmethod
     def log_q(self, x):
         """
-        Abstract Method for Q-invariant Target Distribution as Probability Density Function in Logarithmic form.
+        Abstract Method for Pi-invariant Target Distribution as Probability Density Function in Logarithmic form.
 
         Raises:
-            NotImplementedError: Log Q-invariant PDF must be overridden in the class in order for the Child class to be instantiated,
+            NotImplementedError: Log Pi-invariant PDF must be overridden in the class in order for the Child class to be instantiated,
                 otherwise no instantiated object can be created.
         """
         raise NotImplementedError
@@ -87,24 +86,24 @@ class QTargetInterface(metaclass=ABCMeta):
     @abstractmethod
     def grad_log_q(self, x):
         """
-        Abstract Method for Q-invariant Target Distribution as Probability Density Function in Logarithmic form.
+        Abstract Method for Pi-invariant Target Distribution as Probability Density Function in Logarithmic form.
 
         Raises:
-            NotImplementedError: Log Q-invariant PDF must be overridden in the class in order for the Child class to be instantiated,
+            NotImplementedError: Log Pi-invariant PDF must be overridden in the class in order for the Child class to be instantiated,
                 otherwise no instantiated object can be created.
         """
         raise NotImplementedError
 
-class QTargetAuto(QTargetInterface):
+class PiTargetAuto(PiTargetInterface):
     """
-    Using Jax to Auto-differential generate Q-invariant Target Distribution.
+    Using Jax to Auto-differential generate Pi-invariant Target Distribution.
 
     Args:
-        QTargetInterface (class): Interface to Q-invariant Target Distribution.
+        PiTargetInterface (class): Interface to Pi-invariant Target Distribution.
     """
     def __init__(self, log_p, base_kernel) -> None:
         """
-        Destructor Function for QTargetAuto class.
+        Destructor Function for PiTargetAuto class.
 
         Args:
             log_p (func): Probability Density Function in Logarithmic form.
@@ -179,38 +178,38 @@ class QTargetAuto(QTargetInterface):
 
     def log_q(self, x):
         """
-        Q-invariant Target Distribution as Probability Density Function in Logarithmic form.
+        Pi-invariant Target Distribution as Probability Density Function in Logarithmic form.
 
         Args:
             x (np.ndarray): Input.
 
         Returns:
-            float: The result of Q-invariant Target Distribution as Probability Density Function in Logarithmic form.
+            float: The result of Pi-invariant Target Distribution as Probability Density Function in Logarithmic form.
         """
         return self.log_p(x) + 0.5 * jnp.log(self.stein_kernel(x))
 
     def grad_log_q(self, x):
         """
-        Gradient of Q-invariant Target Distribution as Probability Density Function in Logarithmic form.
+        Gradient of Pi-invariant Target Distribution as Probability Density Function in Logarithmic form.
 
         Args:
             x (np.ndarray): Input.
 
         Returns:
-            np.ndarray: The result of Gradient of Q-invariant Target Distribution as Probability Density Function in Logarithmic form.
+            np.ndarray: The result of Gradient of Pi-invariant Target Distribution as Probability Density Function in Logarithmic form.
         """
         return jit(jacfwd(lambda x: self.log_q(x)))(x)
 
-class QTargetManual(QTargetInterface):
+class PiTargetManual(PiTargetInterface):
     """
-    Using numpy to generate Q-invariant Target Distribution manually.
+    Using numpy to generate Pi-invariant Target Distribution manually.
 
     Args:
-        QTargetInterface (class): Interface to Q-invariant Target Distribution.
+        PiTargetInterface (class): Interface to Pi-invariant Target Distribution.
     """
     def __init__(self, log_p, grad_log_p, hess_log_p, linv) -> None:
         """
-        Destructor Function for QTargetIMQ class.
+        Destructor Function for PiTargetIMQ class.
 
         Args:
             log_p (function): Probability Density Function in Logarithmic form.
@@ -255,38 +254,38 @@ class QTargetManual(QTargetInterface):
 
     def log_q(self, x):
         """
-        Q-invariant Target Distribution as Probability Density Function in Logarithmic form.
+        Pi-invariant Target Distribution as Probability Density Function in Logarithmic form.
 
         Args:
             x (np.ndarray): Input.
 
         Returns:
-            float: The result of Q-invariant Target Distribution as Probability Density Function in Logarithmic form.
+            float: The result of Pi-invariant Target Distribution as Probability Density Function in Logarithmic form.
         """
         return self.log_p(x) + 0.5 * np.log(self.stein_kernel(x))
 
     def grad_log_q(self, x):
         """
-        Gradient of Q-invariant Target Distribution as Probability Density Function in Logarithmic form.
+        Gradient of Pi-invariant Target Distribution as Probability Density Function in Logarithmic form.
 
         Args:
             x (np.ndarray): Input.
 
         Returns:
-            np.ndarray: The result of Gradient of Q-invariant Target Distribution as Probability Density Function in Logarithmic form.
+            np.ndarray: The result of Gradient of Pi-invariant Target Distribution as Probability Density Function in Logarithmic form.
         """
         return 0.5 * self.grad_stein_kernel(x)/self.stein_kernel(x) + self.grad_log_p(x)
 
-class QTargetIMQ(QTargetManual):
+class PiTargetIMQ(PiTargetManual):
     """
-    Using Inverse Multi-Quadric Kernel as the base kernel to generate Q-invariant Target Distribution.
+    Using Inverse Multi-Quadric Kernel as the base kernel to generate Pi-invariant Target Distribution.
 
     Args:
-        QTargetInterface (class): Interface to Q-invariant Target Distribution.
+        PiTargetInterface (class): Interface to Pi-invariant Target Distribution.
     """
     def __init__(self, log_p, grad_log_p, hess_log_p, linv) -> None:
         """
-        Destructor Function for QTargetIMQ class.
+        Destructor Function for PiTargetIMQ class.
 
         Args:
             log_p (function): Probability Density Function in Logarithmic form.
@@ -320,16 +319,16 @@ class QTargetIMQ(QTargetManual):
         """
         return 2 * self.grad_log_p(x) @ self.hess_log_p(x)
 
-class QTargetKGM(QTargetManual):
+class PiTargetKGM(PiTargetManual):
     """
-    Using Kanagawa-Gretton-Mackey Kernel as the base kernel to generate Q-invariant Target Distribution.
+    Using Kanagawa-Gretton-Mackey Kernel as the base kernel to generate Pi-invariant Target Distribution.
 
     Args:
-        QTargetInterface (class): Interface to Q-invariant Target Distribution.
+        PiTargetInterface (class): Interface to Pi-invariant Target Distribution.
     """
     def __init__(self, log_p, grad_log_p, hess_log_p, linv, s) -> None:
         """
-        Destructor Function for QTargetKGM class.
+        Destructor Function for PiTargetKGM class.
 
         Args:
             log_p (function): Probability Density Function in Logarithmic form.
@@ -414,16 +413,16 @@ class QTargetKGM(QTargetManual):
                 2 * self.hess_log_p(x) @ c1_kgm + grad_c0_kgm * (self.grad_log_p(x)@self.grad_log_p(x)) +\
                 2 * c0_kgm * self.hess_log_p(x)@self.grad_log_p(x)
 
-class QTargetCentKGM(QTargetManual):
+class PiTargetCentKGM(PiTargetManual):
     """
-    Using Centralized Kanagawa-Gretton-Mackey Kernel as the base kernel to generate Q-invariant Target Distribution.
+    Using Centralized Kanagawa-Gretton-Mackey Kernel as the base kernel to generate Pi-invariant Target Distribution.
 
     Args:
-        QTargetInterface (class): Interface to Q-invariant Target Distribution.
+        PiTargetInterface (class): Interface to Pi-invariant Target Distribution.
     """
     def __init__(self, log_p, grad_log_p, hess_log_p, linv, s, x_map) -> None:
         """
-        Destructor Function for QTargetKGM class.
+        Destructor Function for PiTargetKGM class.
 
         Args:
             log_p (function): Probability Density Function in Logarithmic form.

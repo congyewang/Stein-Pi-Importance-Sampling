@@ -1,2 +1,2 @@
-# Stein-Q-Thinning
-Stein Q-Thinning
+# Stein-Pi-Thinning
+Stein $\Pi$-Thinning
