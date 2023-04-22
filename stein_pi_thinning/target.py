@@ -174,7 +174,7 @@ class PiTargetAuto(PiTargetInterface):
         Returns:
             np.ndarray: The result of Gradient of Stein Kernel Function.
         """
-        return jit(jacfwd(lambda x: self.stein_kernel(x)))(x)
+        return jit(jacfwd(self.stein_kernel))(x)
 
     def log_q(self, x):
         """
@@ -198,7 +198,7 @@ class PiTargetAuto(PiTargetInterface):
         Returns:
             np.ndarray: The result of Gradient of Pi-invariant Target Distribution as Probability Density Function in Logarithmic form.
         """
-        return jit(jacfwd(lambda x: self.log_q(x)))(x)
+        return jit(jacfwd(self.log_q))(x)
 
 class PiTargetManual(PiTargetInterface):
     """
