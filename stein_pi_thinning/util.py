@@ -10,7 +10,7 @@ from jax import jit
 from jax.scipy.stats import norm, multivariate_normal
 
 from stein_pi_thinning.mcmc import mala_adapt
-from stein_pi_thinning.target import PiTargetAuto
+from stein_pi_thinning.target import PiTargetAuto, PiTargetIMQ, PiTargetCentKGM
 
 
 generator = np.random.default_rng(seed=1234)
@@ -90,12 +90,12 @@ def generate_dim_diff_pi(dim, kernel="imq", nits = 100_000):
 
     elif kernel == "kgm":
         s = 3.0
-        beta = 0.5
         x_map = mu
         linv = jnp.linalg.inv(sigma)
 
-        centkgm_kernel = lambda x, y: (1 + (x-y)@linv@(x-y).T )**(-beta) +\
-                    (1 + (x-x_map)@linv@(y-x_map).T)/( (1+(x-x_map)@linv@(x-x_map).T)**(s/2) * (1+(y-x_map)@linv@(y-x_map).T)**(s/2) )
+        centkgm_kernel = lambda x, y: (1 + (x-x_map)@linv@(x-x_map))**((s-1)/2) * (1 + (y-x_map)@linv@(y-x_map))**((s-1)/2)\
+            * ((1 + (x-y)@linv@(x-y).T )**(-0.5) +\
+            (1 + (x-x_map)@linv@(y-x_map).T)/( (1+(x-x_map)@linv@(x-x_map).T)**(s/2) * (1+(y-x_map)@linv@(y-x_map).T)**(s/2) ))
 
         pi_target = PiTargetAuto(log_p=log_p, base_kernel=centkgm_kernel)
     else:
@@ -112,6 +112,57 @@ def generate_dim_diff_pi(dim, kernel="imq", nits = 100_000):
     epoch = 9 * [pre_nits] + [nits]
 
     _, _, x_q_epoch, _, _, _ = mala_adapt(log_q, grad_log_q, mu, 1, sigma, alpha, epoch)
+
+    x_q = np.array(x_q_epoch[-1], dtype=np.float64)
+
+    return x_q
+
+def generate_dim_diff_pi_manual(dim, kernel="imq", nits = 100_000):
+    """
+    Using Standard Normal Distribution to Generate Pi Target Distribution in Different Dimensions
+
+    Args:
+        dim (int): Dimension
+        kernel (str, optional): Kernel Selection. Defaults to "imq".
+        nits (int, optional): MCMC Iteration Times. Defaults to 100_000.
+
+    Raises:
+        ValueError: Only 'imq' or 'kgm' base kernel function.
+
+    Returns:
+        np.ndarray: The Samples of Pi Target Distribution.
+    """
+    if dim == 1:
+        log_p = lambda x: -0.5*np.log(2*np.pi) - x**2/2
+        grad_log_p = lambda x: -x.reshape(-1,1)
+    else:
+        log_p = lambda x: (-dim/2) * np.log(2*np.pi) - 0.5*x@x.T
+        grad_log_p = lambda x: -x
+    hess_log_p = lambda x: -np.eye(dim)
+
+    linv = np.eye(dim)
+
+    if kernel == "imq":
+        linv = np.eye(dim)
+
+        pi_target = PiTargetIMQ(log_p=log_p, grad_log_p=grad_log_p, hess_log_p=hess_log_p, linv=linv)
+
+    elif kernel == "kgm":
+        pi_target = PiTargetCentKGM(log_p=log_p, grad_log_p=grad_log_p, hess_log_p=hess_log_p, linv=linv, s=3.0, x_map=np.repeat(0.0, dim))
+    else:
+        raise ValueError("Only 'imq' or 'kgm'")
+
+    log_q = pi_target.log_q
+    grad_log_q = pi_target.grad_log_q
+
+    # MALA
+    # Parameters
+    pre_nits = 1_000 # the number of preconditional iterations
+
+    alpha = 10 * [1]
+    epoch = 9 * [pre_nits] + [nits]
+
+    _, _, x_q_epoch, _, _, _ = mala_adapt(log_q, grad_log_q, np.repeat(0.0, dim), 1, np.eye(dim), alpha, epoch)
 
     x_q = np.array(x_q_epoch[-1], dtype=np.float64)
 
