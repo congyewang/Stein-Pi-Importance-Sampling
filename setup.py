@@ -9,5 +9,5 @@ setup(
     author='Congye Wang',
     license='MIT',
     packages=['stein_pi_thinning'],
-    install_requires=['jax', 'numpy', 'scipy', 'statsmodels', 'tqdm']
+    install_requires=['cvxopt', 'jax', 'numpy', 'quadprog', 'scipy', 'statsmodels', 'tqdm']
     )

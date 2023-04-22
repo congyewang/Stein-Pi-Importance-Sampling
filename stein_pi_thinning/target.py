@@ -439,7 +439,7 @@ class PiTargetCentKGM(PiTargetManual):
     def stein_kernel(self, x):
         c0 = 1 + (1 + (x-self.x_map)@self.linv@(x-self.x_map.T))**(self.s-1)
         c1 = (self.s-1)*(1 + (x-self.x_map)@self.linv@(x-self.x_map.T))**(self.s-2) * self.linv@(x-self.x_map).T
-        c2 = ( ((self.s-1)**2*(1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**(self.s-1) - 1)*(x-self.x_map)@self.linv@self.linv@(x-self.x_map).T )/( (1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**2 ) + (jnp.trace(self.linv)*( 1 + (1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**self.s ) )/( (1 + (x-self.x_map)@self.linv@(x-self.x_map).T) )
+        c2 = ( ((self.s-1)**2*(1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**(self.s-1) - 1)*(x-self.x_map)@self.linv@self.linv@(x-self.x_map).T )/( (1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**2 ) + (np.trace(self.linv)*( 1 + (1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**self.s ) )/( (1 + (x-self.x_map)@self.linv@(x-self.x_map).T) )
 
         return c2 + 2*c1@self.grad_log_p(x) + c0*self.grad_log_p(x)@self.grad_log_p(x)
 
@@ -449,13 +449,13 @@ class PiTargetCentKGM(PiTargetManual):
 
         grad_c0 = 2*(self.s-1)*(1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**(self.s-2) * self.linv@(x-self.x_map).T
 
-        grad_c1 = 2*(self.s-1)*(self.s-2)*(1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**(self.s-3) * jnp.outer(self.linv@(x-self.x_map).T, self.linv@(x-self.x_map).T)\
+        grad_c1 = 2*(self.s-1)*(self.s-2)*(1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**(self.s-3) * np.outer(self.linv@(x-self.x_map).T, self.linv@(x-self.x_map).T)\
             + (self.s-1)*(1 + (x-self.x_map)@self.linv@(x-self.x_map))**(self.s-2) * self.linv
 
         grad_c2 = 2*(self.s-1)**2*(self.s-3)*(1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**(self.s-4) * ((x-self.x_map)@self.linv@self.linv@(x-self.x_map).T) * self.linv@(x-self.x_map).T\
             + 2 * (self.s-1)**2 * (1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**(self.s-3)* self.linv@self.linv@(x-self.x_map).T\
-            + 2 * jnp.trace(self.linv) * (self.s-1) * (1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**(self.s-2) * self.linv@(x-self.x_map)\
-            - 2 * (1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**(-2) * ( self.linv@self.linv@(x-self.x_map).T + jnp.trace(self.linv)* self.linv@(x-self.x_map) )\
+            + 2 * np.trace(self.linv) * (self.s-1) * (1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**(self.s-2) * self.linv@(x-self.x_map)\
+            - 2 * (1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**(-2) * ( self.linv@self.linv@(x-self.x_map).T + np.trace(self.linv)* self.linv@(x-self.x_map) )\
             + 4 * (1 + (x-self.x_map)@self.linv@(x-self.x_map).T)**(-3) * ((x-self.x_map)@self.linv@self.linv@(x-self.x_map).T) * self.linv@(x-self.x_map)
 
         return grad_c2 + 2 * grad_c1@self.grad_log_p(x) +\
