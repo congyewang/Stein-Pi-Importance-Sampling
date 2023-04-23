@@ -26,7 +26,7 @@ def test_vkgm():
     std_check = PiTargetKGM(log_p, grad_log_p, hess_log_p, linv, s)
     res_check = np.array([std_check.stein_kernel(i) for i in x])
 
-    assert (np.abs(res_check - vkgm(x, sx, linv, s)) < 1e-5).all
+    assert (np.abs(res_check - vkgm(x, sx, linv, s)) < precision_shreshold).all
 
 def test_vcentkgm():
     dim = np.random.randint(low=2, high=30)
