@@ -18,9 +18,6 @@ from stein_pi_thinning.mcmc import mala_adapt
 from stein_pi_thinning.target import PiTargetAuto, PiTargetIMQ, PiTargetCentKGM
 
 
-generator = np.random.default_rng(seed=1234)
-
-
 def flat(nested_list):
     """
     Expand nested list
