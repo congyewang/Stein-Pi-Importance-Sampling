@@ -29,13 +29,13 @@ def test_vkgm():
     assert (np.abs(res_check - vkgm(x, sx, linv, s)) < precision_shreshold).all
 
 def test_vcentkgm():
-    dim = np.random.randint(low=2, high=30)
+    dim = np.random.randint(low=2, high=10)
 
     linv = jnp.array(wishart.rvs(dim+10, np.eye(dim), 1))
     s = np.random.randint(low=3, high=10)
     x_map = jnp.repeat(0.0, dim)
 
-    num = np.random.randint(low=2, high=10)
+    num = np.random.randint(low=2, high=50)
 
     xv = jnp.array(np.random.normal(size=(num, dim)))
     yv = jnp.array(np.random.normal(size=(num, dim)))
