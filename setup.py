@@ -6,7 +6,7 @@ setup(
     version='0.1.0',
     description='Library of Stein Pi Thinning Algorithm',
     url='https://github.com/congyewang/Stein-Pi-Thinning',
-    author='Congye Wang',
+    author='Stein Pi Thinning team',
     license='MIT',
     packages=['stein_pi_thinning'],
     install_requires=['cvxopt', 'jax', 'numpy', 'quadprog', 'scipy', 'statsmodels', 'tqdm']
