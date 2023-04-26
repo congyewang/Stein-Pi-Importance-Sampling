@@ -3,6 +3,7 @@ Small helper functions.
 """
 
 
+import os
 import numpy as np
 
 from jax import numpy as jnp
@@ -337,3 +338,15 @@ def generate_dim_diff_pi_manual(dim, kernel="imq", nits = 100_000):
     x_q = np.array(x_q_epoch[-1], dtype=np.float64)
 
     return x_q
+
+def mkdir(path):
+    """
+    Determine if a folder exists, if not then create a new folder.
+
+    Args:
+        path (str): The path of the folder.
+    """
+    path = path.strip() # remove first space
+    isExists = os.path.exists(path) # determine if a path exists
+    if not isExists:
+        os.makedirs(path)
