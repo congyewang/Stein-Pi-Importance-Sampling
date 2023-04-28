@@ -189,7 +189,7 @@ def isPD(B):
     except np.linalg.LinAlgError:
         return False
 
-def comp_wksd(x, s, vfk0, solver_type="cvxopt"):
+def comp_wksd(x, s, vfk0, solver_type="cvxopt", output_info=False):
     """
     Computing Weighted Kernel Stein Discrepancy
 
@@ -221,6 +221,7 @@ def comp_wksd(x, s, vfk0, solver_type="cvxopt"):
     b = 1.0
 
     if solver_type == "cvxopt":
+        cvxopt.solvers.options['show_progress'] = output_info
         w = cvxopt_solve_qp(P, q, G, h, A, b)
     elif solver_type == "quadprog":
         w = quadprog_solve_qp(P, q, G, h, A, b)
