@@ -9,7 +9,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from stein_thinning.kernel import make_imq, make_centkgm
-
+from stein_thinning.stein import ksd
+from stein_thinning.thinning import thin
 from stein_pi_thinning.target import PiTargetIMQ, PiTargetCentKGM
 from stein_pi_thinning.mcmc import mala_adapt
 from stein_pi_thinning.util import flat, comp_wksd, mkdir, nearestPD
@@ -50,7 +51,7 @@ def plot_wksd(
             gs_s += df[df.keys()[i]][j]
         gs_constrain[i] = gs_s
     gs_constrain = gs_constrain.T
-    gs = np.zeros_like(gs_constrain)
+    gs = np.zeros((gs_constrain.shape[0], len(model.param_unconstrain(gs_constrain[0].astype(np.float64)))))
     for i in range(gs_constrain.shape[0]):
         gs[i] = model.param_unconstrain(gs_constrain[i].astype(np.float64))
     # P Target and Q Target
@@ -204,7 +205,7 @@ def plot_thinning_ksd(
             gs_s += df[df.keys()[i]][j]
         gs_constrain[i] = gs_s
     gs_constrain = gs_constrain.T
-    gs = np.zeros_like(gs_constrain)
+    gs = np.zeros((gs_constrain.shape[0], len(model.param_unconstrain(gs_constrain[0].astype(np.float64)))))
     for i in range(gs_constrain.shape[0]):
         gs[i] = model.param_unconstrain(gs_constrain[i].astype(np.float64))
     # P Target and Q Target
