@@ -95,7 +95,7 @@ for i in range(df_plot.shape[0]):
 \\end{{subfigure}}
 \\begin{{subfigure}}[htpb]{{0.49\\textwidth}}
     \\includegraphics[width = 1\\textwidth]{{figures/full_results/{0}/{0}_KSDCurve_thinning.pdf}}
-    \\caption{{Optimal Weighted KSD}}
+    \\caption{{Thinning KSD}}
     \\label{{fig: {0} thin}}
 \\end{{subfigure}}
 \\caption{{{1} ({2}D)}}
