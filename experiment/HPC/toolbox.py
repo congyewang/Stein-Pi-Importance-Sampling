@@ -176,7 +176,7 @@ def plot_wksd(
 def plot_thinning_ksd(
         model_name,
         nits=100_000,
-        dbpath="../posteriordb/posterior_database",
+        dbpath="posteriordb/posterior_database",
         s = 3.0,
         fixed_ratio = 0.1,
         iteration_list = [10, 20, 50, 100, 200, 500, 1000],
