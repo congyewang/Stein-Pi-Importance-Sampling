@@ -1,7 +1,6 @@
 from posteriordb import PosteriorDatabase
 import os
 import pandas as pd
-import numpy as np
 
 
 # Load DataBase Locally
