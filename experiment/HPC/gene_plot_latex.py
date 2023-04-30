@@ -75,7 +75,7 @@ for i in range(df_plot.shape[0]):
 \\begin{figure}[htpb]
     \\centering
 """)
-    elif i % 3 == 0:
+    elif i % 5 == 0:
         with open("test.tex", "a+") as f:
             f.write("""
 \\end{figure}
@@ -87,14 +87,19 @@ for i in range(df_plot.shape[0]):
 """)
 
     temp = """
-\\begin{{subfigure}}[htpb]{{0.49\\textwidth}}
+\\begin{{subfigure}}[htpb]{{0.30\\textwidth}}
     \\includegraphics[width = 1\\textwidth]{{figures/full_results/{0}/{0}_KSDCurve_weight.pdf}}
     \\caption{{Optimal Weighted KSD}}
     \\label{{fig: {0} wksd}}
 \\end{{subfigure}}
-\\begin{{subfigure}}[htpb]{{0.49\\textwidth}}
+\\begin{{subfigure}}[htpb]{{0.30\\textwidth}}
     \\includegraphics[width = 1\\textwidth]{{figures/full_results/{0}/{0}_KSDCurve_thinning.pdf}}
     \\caption{{Thinning KSD}}
+    \\label{{fig: {0} thin}}
+\\end{{subfigure}}
+\\begin{{subfigure}}[htpb]{{0.30\\textwidth}}
+    \\includegraphics[width = 1\\textwidth]{{figures/full_results/{0}/{0}_KSDCurve_mixed_thinning.pdf}}
+    \\caption{{Mixed Thinning KSD}}
     \\label{{fig: {0} thin}}
 \\end{{subfigure}}
 \\caption{{{1} ({2}D)}}
