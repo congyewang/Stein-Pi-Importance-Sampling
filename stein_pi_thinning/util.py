@@ -229,7 +229,8 @@ def comp_wksd(x, s, vfk0, solver_type="cvxopt", output_info=False):
         raise ValueError("Only 'cvxopt' or 'quadprog'")
 
     wksd = np.sqrt(w @ K @ w)
-    return wksd
+
+    return wksd, x, w
 
 def generate_dim_diff_pi(dim, kernel="imq", nits = 100_000):
     """
