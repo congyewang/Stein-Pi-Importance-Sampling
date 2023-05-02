@@ -51,7 +51,7 @@ def store_wksd(
             gs_s += df[df.keys()[i]][j]
         gs_constrain[i] = gs_s
     gs_constrain = gs_constrain.T
-    gs = np.zeros_like(gs_constrain)
+    gs = np.zeros((gs_constrain.shape[0], len(model.param_unconstrain(gs_constrain[0].astype(np.float64)))))
     for i in range(gs_constrain.shape[0]):
         gs[i] = model.param_unconstrain(gs_constrain[i].astype(np.float64))
     # P Target and Q Target
