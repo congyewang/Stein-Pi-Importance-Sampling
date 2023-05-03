@@ -10,8 +10,7 @@ from jax import numpy as jnp
 from jax import jit
 from jax.scipy.stats import norm, multivariate_normal
 
-import quadprog
-import cvxopt
+from qpsolvers import solve_qp
 
 from stein_thinning.stein import kmat
 
@@ -113,30 +112,6 @@ def vcentkgm(x, y, sx, sy, linv, s, x_map):
 
     return vkp
 
-def quadprog_solve_qp(P, q, G, h, A=None, b=None):
-    qp_G = .5 * (P + P.T)   # make sure P is symmetric
-    qp_a = -q
-    if A is not None:
-        qp_C = -np.vstack([A, G]).T
-        qp_b = -np.hstack([b, h])
-        meq = A.shape[0]
-    else:  # no equality constraint
-        qp_C = -G.T
-        qp_b = -h
-        meq = 0
-    return quadprog.solve_qp(qp_G, qp_a, qp_C, qp_b, meq)[0]
-
-def cvxopt_solve_qp(P, q, G, h, A=None, b=None):
-    P = .5 * (P + P.T)  # make sure P is symmetric
-    args = [cvxopt.matrix(P), cvxopt.matrix(q)]
-    args.extend([cvxopt.matrix(G), cvxopt.matrix(h)])
-    if A is not None:
-        args.extend([cvxopt.matrix(A), cvxopt.matrix(b)])
-    sol = cvxopt.solvers.qp(*args)
-    if 'optimal' not in sol['status']:
-        return None
-    return np.array(sol['x']).reshape((P.shape[1],))
-
 def nearestPD(A):
     """
     Find the nearest positive-definite matrix to input
@@ -189,7 +164,7 @@ def isPD(B):
     except np.linalg.LinAlgError:
         return False
 
-def comp_wksd(x, s, vfk0, solver_type="cvxopt", output_info=False):
+def comp_wksd(x, s, vfk0, solver='proxqp'):
     """
     Computing Weighted Kernel Stein Discrepancy
 
@@ -204,29 +179,23 @@ def comp_wksd(x, s, vfk0, solver_type="cvxopt", output_info=False):
     # remove duplicates
     x, idx = np.unique(x, axis=0, return_index=True)
     s = s[idx]
-    # dimensions
-    n = x.shape[0]
+    n = x.shape[0] # dimensions
 
-    # Stein kernel matrix
-    K = kmat(x=x, s=s, vfk0=vfk0)
+    K = kmat(x=x, s=s, vfk0=vfk0) # Stein kernel matrix
 
     if isPD(K):
         P = K
     else:
         P = nearestPD(K)
+
+    P = 0.5 * (P + P.T) # make sure P is symmetric
     q = np.zeros(n)
     G = np.diag([-1.0]*n)
     h = np.ones(n)
     A = np.ones((1,n))
-    b = 1.0
+    b = np.array([1.0])
 
-    if solver_type == "cvxopt":
-        cvxopt.solvers.options['show_progress'] = output_info
-        w = cvxopt_solve_qp(P, q, G, h, A, b)
-    elif solver_type == "quadprog":
-        w = quadprog_solve_qp(P, q, G, h, A, b)
-    else:
-        raise ValueError("Only 'cvxopt' or 'quadprog'")
+    w = solve_qp(P, q, G, h, A, b, solver=solver)
 
     wksd = np.sqrt(w @ K @ w)
 
