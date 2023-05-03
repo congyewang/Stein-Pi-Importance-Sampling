@@ -9,5 +9,5 @@ setup(
     author='Stein Pi Thinning team',
     license='MIT',
     packages=['stein_pi_thinning'],
-    install_requires=['cvxopt', 'jax', 'numpy', 'proxqp', 'qpsolvers', 'scipy', 'statsmodels', 'tqdm']
+    install_requires=['cvxopt', 'jax', 'numpy', 'proxsuite', 'qpsolvers', 'scipy', 'statsmodels', 'tqdm']
     )
