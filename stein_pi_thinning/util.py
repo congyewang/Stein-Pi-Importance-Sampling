@@ -321,3 +321,12 @@ def mkdir(path):
     isExists = os.path.exists(path) # determine if a path exists
     if not isExists:
         os.makedirs(path)
+
+def get_non_empty_subdirectories(folder_path):
+    subdirectories = []
+    for root, dirs, files in os.walk(folder_path):
+        for dir_name in dirs:
+            dir_path = os.path.join(root, dir_name)
+            if len(os.listdir(dir_path)) > 0:  # Check if the subfolder is not empty
+                subdirectories.append(dir_name)
+    return subdirectories
