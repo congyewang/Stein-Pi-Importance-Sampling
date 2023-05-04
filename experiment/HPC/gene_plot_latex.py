@@ -1,27 +1,15 @@
-from posteriordb import PosteriorDatabase
 import os
 import pandas as pd
-
+from jinja2 import Template
+from posteriordb import PosteriorDatabase
+from stein_pi_thinning.util import flat
 
 # Load DataBase Locally
 pdb_path = os.path.join("posteriordb/posterior_database")
 my_pdb = PosteriorDatabase(pdb_path)
 
-
 # Extract the Names of All Models
 pos = my_pdb.posterior_names()
-
-
-# Expand Nested List
-def flat(nums):
-    res = []
-    for i in nums:
-        if isinstance(i, list):
-            res.extend(flat(i))
-        else:
-            res.append(i)
-    return res
-
 
 # Reordering Models in Ascending Dimensional Order
 d = {}
@@ -34,7 +22,6 @@ for i in pos:
 df = pd.DataFrame.from_dict(d, orient='index', columns=['dimensions'])
 df.sort_values(by=['dimensions'], ascending=True, inplace=True)
 
-
 # Determining Whether the Model has a Gold Standard
 no_gs = []
 for i in pos:
@@ -44,16 +31,11 @@ for i in pos:
     except AssertionError:
         no_gs.append(i)
 
-
 # Models with a Gold Standard
-gs_models = set(pos).difference(set(no_gs))
-
+gs_models = list(set(pos).difference(set(no_gs)))
 
 df_gs = df.loc[gs_models].reset_index(inplace=False)
 df_gs.sort_values(by=['dimensions', 'index'], ascending=True, inplace=True)
-df_gs
-
-
 no_weight = ["diamonds-diamonds",
 "earnings-logearn_height",
 "earnings-logearn_height_male",
@@ -67,46 +49,19 @@ no_weight = ["diamonds-diamonds",
 
 df_plot = df_gs[~(df_gs["index"].isin(no_weight))]
 
+# Read template files
+with open('Templates/temp_plot.tex') as file:
+    template_content = file.read()
 
-for i in range(df_plot.shape[0]):
-    if i == 0:
-        with open("test.tex", "a+") as f:
-            f.write("""
-\\begin{figure}[htpb]
-    \\centering
-""")
-    elif i % 5 == 0:
-        with open("test.tex", "a+") as f:
-            f.write("""
-\\end{figure}
+# Creating a Jinja2 template object
+template = Template(template_content)
 
-\\clearpage
+# Defining the data
+index_list = list(range(df_plot.shape[0]))
 
-\\begin{figure}[htpb]
-    \\centering
-""")
+# Rendering templates
+rendered_tex = template.render(index_list=index_list, df_plot=df_plot)
 
-    temp = """
-\\begin{{subfigure}}[htpb]{{0.30\\textwidth}}
-    \\includegraphics[width = 1\\textwidth]{{figures/full_results/{0}/{0}_KSDCurve_weight.pdf}}
-    \\caption{{Optimal Weighted KSD}}
-    \\label{{fig: {0} wksd}}
-\\end{{subfigure}}
-\\begin{{subfigure}}[htpb]{{0.30\\textwidth}}
-    \\includegraphics[width = 1\\textwidth]{{figures/full_results/{0}/{0}_KSDCurve_thinning.pdf}}
-    \\caption{{Thinning KSD}}
-    \\label{{fig: {0} thin}}
-\\end{{subfigure}}
-\\begin{{subfigure}}[htpb]{{0.30\\textwidth}}
-    \\includegraphics[width = 1\\textwidth]{{figures/full_results/{0}/{0}_KSDCurve_mixed_thinning.pdf}}
-    \\caption{{Mixed Thinning KSD}}
-    \\label{{fig: {0} thin}}
-\\end{{subfigure}}
-\\caption{{{1} ({2}D)}}
-\\label{{fig: {0}}}
-""".format(df_plot.iloc[i]["index"], df_plot.iloc[i]["index"].replace("_", "\\_"), df_plot.iloc[i]["dimensions"])
-    with open("test.tex", "a+") as f:
-        f.write(temp)
-
-with open("test.tex", "a+") as f:
-            f.write("\n\\end{figure}\n")
+# Save LaTeX code
+with open("test.tex", "w") as f:
+    f.write(rendered_tex)

@@ -1,0 +1,36 @@
+\begin{figure}[htpb]
+    \centering
+    {% for i in index_list %}
+
+    {% if i % 5 == 0 %}
+    {% if i != 0 %}
+    \end{figure}
+
+    \clearpage
+
+    \begin{figure}[htpb]
+        \centering
+    {% endif %}
+    {% endif %}
+
+    \begin{subfigure}[htpb]{0.30\textwidth}
+        \includegraphics[width = 1\textwidth]{figures/full_results/{{ df_plot.iloc[i]["index"] }}/{{ df_plot.iloc[i]["index"] }}_KSDCurve_weight.pdf}
+        \caption{Optimal Weighted KSD}
+        \label{fig: {{ df_plot.iloc[i]["index"] }} wksd}
+    \end{subfigure}
+    \begin{subfigure}[htpb]{0.30\textwidth}
+        \includegraphics[width = 1\textwidth]{figures/full_results/{{ df_plot.iloc[i]["index"] }}/{{ df_plot.iloc[i]["index"] }}_KSDCurve_thinning.pdf}
+        \caption{Thinning KSD}
+        \label{fig: {{ df_plot.iloc[i]["index"] }} thin}
+    \end{subfigure}
+    \begin{subfigure}[htpb]{0.30\textwidth}
+        \includegraphics[width = 1\textwidth]{figures/full_results/{{ df_plot.iloc[i]["index"] }}/{{ df_plot.iloc[i]["index"] }}_KSDCurve_mixed_thinning.pdf}
+        \caption{Mixed Thinning KSD}
+        \label{fig: {{ df_plot.iloc[i]["index"] }} thin}
+    \end{subfigure}
+    \caption{ {{ df_plot.iloc[i]["index"]|replace("_", "\\\\_") }} ({{ df_plot.iloc[i]["dimensions"] }}D) }
+    \label{fig: {{ df_plot.iloc[i]["index"] }}}
+
+    {% endfor %}
+
+\end{figure}
