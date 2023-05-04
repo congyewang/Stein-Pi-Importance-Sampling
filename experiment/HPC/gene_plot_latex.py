@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import jinja2
-from jinja2 import Template, Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader
 from posteriordb import PosteriorDatabase
 from stein_pi_thinning.util import flat, get_non_empty_subdirectories
 
@@ -39,19 +39,17 @@ gs_models = list(set(pos).difference(set(no_gs)))
 df_gs = df.loc[gs_models].reset_index(inplace=False)
 df_gs.sort_values(by=['dimensions', 'index'], ascending=True, inplace=True)
 
-model_list = get_non_empty_subdirectories('Pic')
+model_list = get_non_empty_subdirectories('Data')
 df_plot = df_gs[df_gs["index"].isin(model_list)]
 
 # Read template files
 with open('temp_plot.tex') as file:
     template_content = file.read()
 
-# Creating a Jinja2 template object
-# template = Template(template_content)
-# 创建Jinja2环境
+# Creating Jinja2 environment
 env = Environment(loader=FileSystemLoader('.'), trim_blocks=True, lstrip_blocks=True)
 
-# 加载模板
+# Loading template
 template = env.get_template('temp_plot.tex')
 
 # Defining the data

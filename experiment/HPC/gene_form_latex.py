@@ -43,8 +43,7 @@ iteration_list = [10, 30, 50, 100, 300, 500, 1_000, 3_000]
 
 df_form = df_gs[df_gs["index"].isin(model_list)]
 
-
-for i_index, i in enumerate(df_form["index"].tolist()):
+for i in df_form["index"].tolist():
     res_ksd_p_imq_origin = np.load(f"Data/{i}/res_ksd_p_imq_origin.npy")
     res_ksd_p_centkgm_origin = np.load(f"Data/{i}/res_ksd_p_centkgm_origin.npy")
 
@@ -64,4 +63,11 @@ for i_index, i in enumerate(df_form["index"].tolist()):
     mean_ksd_q_centkgm_weight = np.mean(res_ksd_q_centkgm_weight, axis=0)
 
     with open("posteriordb_form.tex", "a+") as f:
-        f.write(f"{i} & {int(df_form[df_form['index'] == i]['dimensions'])} & {mean_ksd_p_imq_origin[-1]} & {mean_ksd_p_imq_weight[-1]} & {mean_ksd_q_imq_weight[-1]} & {mean_ksd_p_centkgm_origin[-1]} & {mean_ksd_p_centkgm_weight[-1]} & {mean_ksd_q_centkgm_weight[-1]} \\\\\n")
+        f.write("{0} & {1} & {2:.4f} & {3:.4f} & {4:.4f} & {5:.4f} & {6:.4f} & {7:.4f} \\\\\n".format(
+            i.replace('_', '\\_'),
+            int(df_form[df_form['index'] == i]['dimensions']),
+            mean_ksd_p_imq_origin[-1], mean_ksd_p_imq_weight[-1],
+            mean_ksd_q_imq_weight[-1], mean_ksd_p_centkgm_origin[-1],
+            mean_ksd_p_centkgm_weight[-1], mean_ksd_q_centkgm_weight[-1]
+            )
+        )

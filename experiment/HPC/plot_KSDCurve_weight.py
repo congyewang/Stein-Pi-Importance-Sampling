@@ -49,10 +49,9 @@ iteration_list = [10, 30, 50, 100, 300, 500, 1_000, 3_000]
 
 df_plot = df_gs[df_gs["index"].isin(model_list)]
 
+mkdir(f"Pic")
 
 for i in df_plot["index"].tolist():
-    mkdir(f"Pic/{i}")
-
     res_ksd_p_imq_origin = np.load(f"Data/{i}/res_ksd_p_imq_origin.npy")
     res_ksd_p_centkgm_origin = np.load(f"Data/{i}/res_ksd_p_centkgm_origin.npy")
 
@@ -99,4 +98,4 @@ for i in df_plot["index"].tolist():
     plt.title("{0} ({1}D)".format(
         i,
         int(df_plot[df_plot['index'] == i]['dimensions'])), fontname="serif")
-    plt.savefig(f"Pic/{i}/{i}_KSDCurve_weight.pdf")
+    plt.savefig(f"Pic/{i}_KSDCurve_weight.pdf")

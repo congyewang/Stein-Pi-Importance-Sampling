@@ -1,10 +1,10 @@
 \begin{figure}[htpb]
     \centering
     {% for i in index_list %}
-        {% if i % 15 == 0 %}
+        {% if i % 18 == 0 %}
             {% if i != 0 %}
 
-    \caption{\textcolor{red}{Template Test. Waiting for 5000 results.}}
+    \caption{\textcolor{red}{Waiting for 5000 results.}}
     \end{figure}
 
     \clearpage
@@ -15,8 +15,8 @@
         {% endif %}
 
     \begin{subfigure}[htpb]{0.30\textwidth}
-        \includegraphics[width = 1\textwidth]{figures/full_results/{{ df_plot.iloc[i]["index"] }}/{{ df_plot.iloc[i]["index"] }}_KSDCurve_weight.pdf}
+        \includegraphics[width = 1\textwidth]{figures/full_results/{{ df_plot.iloc[i]["index"] }}_KSDCurve_weight.pdf}
     \end{subfigure}
     {%- endfor -%}
-
+    \caption{\textcolor{red}{Waiting for 5000 results.}}
 \end{figure}
