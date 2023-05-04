@@ -1,8 +1,11 @@
 import os
 import pandas as pd
-from jinja2 import Template
+import jinja2
+from jinja2 import Template, Environment, FileSystemLoader
 from posteriordb import PosteriorDatabase
-from stein_pi_thinning.util import flat
+from stein_pi_thinning.util import flat, get_non_empty_subdirectories
+
+jinja2.Environment()
 
 # Load DataBase Locally
 pdb_path = os.path.join("posteriordb/posterior_database")
@@ -33,28 +36,23 @@ for i in pos:
 
 # Models with a Gold Standard
 gs_models = list(set(pos).difference(set(no_gs)))
-
 df_gs = df.loc[gs_models].reset_index(inplace=False)
 df_gs.sort_values(by=['dimensions', 'index'], ascending=True, inplace=True)
-no_weight = ["diamonds-diamonds",
-"earnings-logearn_height",
-"earnings-logearn_height_male",
-"earnings-logearn_interaction",
-"mcycle_gp-accel_gp",
-"sblrc-blr",
-"earnings-log10earn_height",
-"one_comp_mm_elim_abs-one_comp_mm_elim_abs",
-"gp_pois_regr-gp_pois_regr",
-"kilpisjarvi_mod-kilpisjarvi"]
 
-df_plot = df_gs[~(df_gs["index"].isin(no_weight))]
+model_list = get_non_empty_subdirectories('Pic')
+df_plot = df_gs[df_gs["index"].isin(model_list)]
 
 # Read template files
-with open('Templates/temp_plot.tex') as file:
+with open('temp_plot.tex') as file:
     template_content = file.read()
 
 # Creating a Jinja2 template object
-template = Template(template_content)
+# template = Template(template_content)
+# 创建Jinja2环境
+env = Environment(loader=FileSystemLoader('.'), trim_blocks=True, lstrip_blocks=True)
+
+# 加载模板
+template = env.get_template('temp_plot.tex')
 
 # Defining the data
 index_list = list(range(df_plot.shape[0]))
@@ -63,5 +61,5 @@ index_list = list(range(df_plot.shape[0]))
 rendered_tex = template.render(index_list=index_list, df_plot=df_plot)
 
 # Save LaTeX code
-with open("test.tex", "w") as f:
+with open("posteriordb_plots.tex", "w") as f:
     f.write(rendered_tex)
