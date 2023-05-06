@@ -117,6 +117,19 @@ def store_wksd(
     res_ksd_q_imq_weight = np.zeros((repeat_times, len(iteration_list)))
     res_ksd_q_centkgm_weight = np.zeros((repeat_times, len(iteration_list)))
 
+    ### WS
+    res_p_imq_unique = []
+    res_p_imq_unique_weight = []
+
+    res_p_centkgm_unique = []
+    res_p_centkgm_unique_weight = []
+
+    res_q_imq_unique = []
+    res_q_imq_unique_weight = []
+
+    res_q_centkgm_unique = []
+    res_q_centkgm_unique_weight = []
+
     ## Thinning Method Selection
     for i in range(repeat_times):
         start_position = rng.integers(0, nits-np.max(iteration_list))
@@ -142,6 +155,19 @@ def store_wksd(
             res_ksd_q_imq_weight[i, j_index], q_imq_unique, q_imq_unique_weight = comp_wksd(x_q_imq_unconstrain_cutting, grad_x_q_imq_unconstrain_cutting, vfk0_imq)
             res_ksd_q_centkgm_weight[i, j_index], q_centkgm_unique, q_centkgm_unique_weight = comp_wksd(x_q_centkgm_unconstrain_cutting, grad_x_q_centkgm_unconstrain_cutting, vfk0_centkgm)
 
+            ### Store
+            #### MALA
+            res_p_imq_unique.append(p_imq_unique)
+            res_p_centkgm_unique.append(p_centkgm_unique)
+            #### P
+            res_p_imq_unique_weight.append(p_imq_unique_weight)
+            res_p_centkgm_unique_weight.append(p_centkgm_unique_weight)
+            #### Q
+            res_q_imq_unique.append(q_imq_unique)
+            res_q_centkgm_unique.append(q_centkgm_unique)
+            res_q_imq_unique_weight.append(q_imq_unique_weight)
+            res_q_centkgm_unique_weight.append(q_centkgm_unique_weight)
+
     ## Save
     ### KSD MALA
     np.save(f"{data_save_path}/res_ksd_p_imq_origin.npy", res_ksd_p_imq_origin)
@@ -156,17 +182,17 @@ def store_wksd(
     np.save(f"{data_save_path}/res_ksd_q_centkgm_weight.npy", res_ksd_q_centkgm_weight)
 
     ### Wasserstein Needed
-    np.save(f"{data_save_path}/p_imq_unique.npy", p_imq_unique)
-    np.save(f"{data_save_path}/p_imq_unique_weight.npy", p_imq_unique_weight)
+    np.savez(f"{data_save_path}/res_p_imq_unique.npz", res_p_imq_unique)
+    np.savez(f"{data_save_path}/res_p_imq_unique_weight.npz", res_p_imq_unique_weight)
 
-    np.save(f"{data_save_path}/p_centkgm_unique.npy", p_centkgm_unique)
-    np.save(f"{data_save_path}/p_centkgm_unique_weight.npy", p_centkgm_unique_weight)
+    np.savez(f"{data_save_path}/res_p_centkgm_unique.npz", res_p_centkgm_unique)
+    np.savez(f"{data_save_path}/res_p_centkgm_unique_weight.npz", res_p_centkgm_unique_weight)
 
-    np.save(f"{data_save_path}/q_imq_unique.npy", q_imq_unique)
-    np.save(f"{data_save_path}/q_imq_unique_weight.npy", q_imq_unique_weight)
+    np.savez(f"{data_save_path}/res_q_imq_unique.npz", res_q_imq_unique)
+    np.savez(f"{data_save_path}/res_q_imq_unique_weight.npz", res_q_imq_unique_weight)
 
-    np.save(f"{data_save_path}/q_centkgm_unique.npy", q_centkgm_unique)
-    np.save(f"{data_save_path}/q_centkgm_unique_weight.npy", q_centkgm_unique_weight)
+    np.savez(f"{data_save_path}/res_q_centkgm_unique.npz", res_q_centkgm_unique)
+    np.savez(f"{data_save_path}/res_q_centkgm_unique_weight.npz", res_q_centkgm_unique_weight)
 
 def plot_wksd(
     model_name,
