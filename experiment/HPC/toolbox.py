@@ -16,6 +16,8 @@ from stein_pi_thinning.mcmc import mala_adapt
 from stein_pi_thinning.util import flat, comp_wksd, mkdir, nearestPD, renorm_w
 from stein_pi_thinning.progress_bar import disable_progress_bar
 
+import wasserstein
+
 rng = np.random.default_rng(1234)
 disable_progress_bar()
 
