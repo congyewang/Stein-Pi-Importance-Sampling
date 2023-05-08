@@ -5,9 +5,9 @@ import matplotlib.pyplot as plt
 from posteriordb import PosteriorDatabase
 from stein_pi_thinning.util import flat, mkdir, get_non_empty_subdirectories
 
-plt.rcParams['font.size'] = 12
+plt.rcParams['text.usetex'] = True
+plt.rcParams["text.latex.preamble"] = r"\usepackage{amsfonts}"
 plt.rcParams["axes.formatter.use_mathtext"] = True
-
 
 # Load DataBase Locally
 pdb_path = os.path.join("posteriordb/posterior_database")
@@ -79,7 +79,8 @@ for i in df_plot["index"].tolist():
     plt.cla()
 
     plt.errorbar(iteration_list, mean_ksd_p_imq_origin, yerr=std_error_ksd_p_imq_origin, color="#7e2f8e", linestyle="dotted", capsize=4, label="$MALA$ (Langevin)")
-    plt.errorbar(iteration_list, mean_ksd_p_centkgm_origin, yerr=std_error_ksd_p_centkgm_origin, color="#4dbeee", linestyle="dotted", capsize=4, label="$MALA$ (KGM3)")
+    # plt.errorbar(iteration_list, mean_ksd_p_centkgm_origin, yerr=std_error_ksd_p_centkgm_origin, color="#4dbeee", linestyle="dotted", capsize=4, label="$MALA$ (KGM3)")
+    plt.plot(iteration_list, mean_ksd_p_centkgm_origin, color="#4dbeee", linestyle="dotted", label="$MALA$ (KGM3)")
 
     plt.errorbar(iteration_list, mean_ksd_p_imq_weight, yerr=std_error_ksd_p_imq_weight, color="#7e2f8e", linestyle="-", capsize=4, label="$P$ (Langevin)")
     plt.errorbar(iteration_list, mean_ksd_q_imq_weight, yerr=std_error_ksd_q_imq_weight, color="#7e2f8e", linestyle="--", capsize=4, label="$\\Pi$ (Langevin)")
@@ -90,12 +91,12 @@ for i in df_plot["index"].tolist():
     plt.xscale('log')
     plt.yscale('log')
 
-    plt.xlabel('$n$', fontname="cmr10")
-    plt.ylabel(r"$\bf{E}$[$KSD$]", fontname="cmr10")
+    plt.xlabel(r'$n$', fontsize=17)
+    plt.ylabel(r'$\mathbb{E}[\mathrm{KSD}]$', fontsize=17)
 
     plt.xlim((np.min(iteration_list), np.max(iteration_list)))
 
-    plt.title("{0} ({1}D)".format(
-        i,
-        int(df_plot[df_plot['index'] == i]['dimensions'])), fontname="serif")
+    plt.title("$\mathrm{{{0}}} ({1}D)$".format(
+        i.replace("_", "\_"),
+        int(df_plot[df_plot['index'] == i]['dimensions'])), fontsize=17, fontname="cmr10")
     plt.savefig(f"Pic/{i}_KSDCurve_weight.pdf")

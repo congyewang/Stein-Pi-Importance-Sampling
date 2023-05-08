@@ -1,22 +1,24 @@
-\begin{figure}[htpb]
+\begin{figure}[!h]
     \centering
     {% for i in index_list %}
-        {% if i % 18 == 0 %}
+        {% if i % 8 == 0 %}
             {% if i != 0 %}
 
-    \caption{\textcolor{red}{Waiting for 5000 results.}}
+    \caption{\textcolor{red}{Chris to Add Caption.}}
     \end{figure}
+    \FloatBarrier
 
     \clearpage
 
-    \begin{figure}[htpb]
+    \begin{figure}[!h]
         \centering
             {% endif %}
         {% endif %}
 
-    \begin{subfigure}[htpb]{0.30\textwidth}
+    \begin{subfigure}[!h]{0.49\textwidth}
         \includegraphics[width = 1\textwidth]{figures/full_results/{{ df_plot.iloc[i]["index"] }}_KSDCurve_weight.pdf}
     \end{subfigure}
     {%- endfor -%}
-    \caption{\textcolor{red}{Waiting for 5000 results.}}
+    \caption{\textcolor{red}{Chris to Add Caption.}}
 \end{figure}
+\FloatBarrier

@@ -62,12 +62,32 @@ for i in df_form["index"].tolist():
     mean_ksd_p_centkgm_weight = np.mean(res_ksd_p_centkgm_weight, axis=0)
     mean_ksd_q_centkgm_weight = np.mean(res_ksd_q_centkgm_weight, axis=0)
 
+    f2_real = mean_ksd_p_imq_origin[-1]
+    f3_real = mean_ksd_p_imq_weight[-1]
+    f4_real = mean_ksd_q_imq_weight[-1]
+    f5_real = mean_ksd_p_centkgm_origin[-1]
+    f6_real = mean_ksd_p_centkgm_weight[-1]
+    f7_real = mean_ksd_q_centkgm_weight[-1]
+
+    f0 = i.replace('_', '\\_')
+    f1 = int(df_form[df_form['index'] == i]['dimensions'])
+    f2 = float("{:.3g}".format(f2_real))
+    f3 = float("{:.3g}".format(f3_real))
+    f4 = float("{:.3g}".format(f4_real))
+    f5 = float("{:.3g}".format(f5_real))
+    f6 = float("{:.3g}".format(f6_real))
+    f7 = float("{:.3g}".format(f7_real))
+
+    if f3_real < f4_real:
+        fa = "\\textbf{{{0}}} & {1}".format(f3, f4)
+    else:
+        fa = "{0} & \\textbf{{{1}}}".format(f3, f4)
+
+    if f6_real < f7_real:
+        fb = "\\textbf{{{0}}} & {1}".format(f6, f7)
+    else:
+        fb = "{0} & \\textbf{{{1}}}".format(f6, f7)
+
     with open("posteriordb_form.tex", "a+") as f:
-        f.write("{0} & {1} & {2:.4f} & {3:.4f} & {4:.4f} & {5:.4f} & {6:.4f} & {7:.4f} \\\\\n".format(
-            i.replace('_', '\\_'),
-            int(df_form[df_form['index'] == i]['dimensions']),
-            mean_ksd_p_imq_origin[-1], mean_ksd_p_imq_weight[-1],
-            mean_ksd_q_imq_weight[-1], mean_ksd_p_centkgm_origin[-1],
-            mean_ksd_p_centkgm_weight[-1], mean_ksd_q_centkgm_weight[-1]
-            )
+        f.write(f"{f0} & {f1} & {f2} & {fa} & {f5} & {fb} \\\\\n"
         )
