@@ -13,7 +13,7 @@ from stein_thinning.stein import ksd
 from stein_thinning.thinning import thin
 from stein_pi_thinning.target import PiTargetIMQ, PiTargetCentKGM
 from stein_pi_thinning.mcmc import mala_adapt
-from stein_pi_thinning.util import flat, comp_wksd, mkdir, nearestPD
+from stein_pi_thinning.util import flat, comp_wksd, mkdir, nearestPD, renorm_w
 from stein_pi_thinning.progress_bar import disable_progress_bar
 
 rng = np.random.default_rng(1234)
@@ -794,3 +794,88 @@ def output_gs_name(dbpath="posteriordb/posterior_database"):
     gs_models = list(set(pos).difference(set(no_gs)))
 
     return gs_models
+
+def store_wwasd(
+        model_name,
+        dbpath="posteriordb/posterior_database",
+        iteration_list=[10, 30, 50, 100, 300, 500, 1_000, 3_000],
+        repeat_times=10
+):
+    # Load DataBase Locally
+    pdb_path = os.path.join(dbpath)
+    my_pdb = PosteriorDatabase(pdb_path)
+
+    ## Store
+    ### Wasserstein MALA
+    res_wass_p_origin = np.zeros((repeat_times, len(iteration_list)))
+
+    ### Wasserstein P
+    res_wass_p_imq_weight = np.zeros((repeat_times, len(iteration_list)))
+    res_wass_p_centkgm_weight = np.zeros((repeat_times, len(iteration_list)))
+
+    ### Wasserstein Q
+    res_wass_q_imq_weight = np.zeros((repeat_times, len(iteration_list)))
+    res_wass_q_centkgm_weight = np.zeros((repeat_times, len(iteration_list)))
+
+    ### Create Folder
+    data_save_path = f"Wass/{model_name}"
+    mkdir(data_save_path)
+ 
+    for rep in range(repeat_times):
+        print(rep)
+        for iter_idx in range(len(iteration_list)):
+            # Load Dataset
+            posterior = my_pdb.posterior(model_name)
+            stan = posterior.model.stan_code_file_path()
+            data = json.dumps(posterior.data.values())
+            model = bs.StanModel.from_stan_file(stan, data)
+
+            ## Gold Standard
+            gs_list = posterior.reference_draws()
+            df = pd.DataFrame(gs_list)
+            gs_constrain = np.zeros((sum(flat(posterior.information['dimensions'].values())),\
+                                posterior.reference_draws_info()['diagnostics']['ndraws']))
+            for i in range(len(df.keys())):
+                gs_s = []
+                for j in range(len(df[df.keys()[i]])):
+                    gs_s += df[df.keys()[i]][j]
+                gs_constrain[i] = gs_s
+            gs_constrain = gs_constrain.T
+            gs = np.zeros((gs_constrain.shape[0], len(model.param_unconstrain(gs_constrain[0].astype(np.float64)))))
+            for i in range(gs_constrain.shape[0]):
+                gs[i] = model.param_unconstrain(gs_constrain[i].astype(np.float64))
+
+            # MALA IMQ KGM
+            p_imq_unique = np.load(f"Data/{model_name}/res_p_imq_unique.npz", allow_pickle=True)['arr_0'][rep*len(iteration_list)+iter_idx]
+            p_imq_unique_weight = renorm_w(np.load(f"Data/{model_name}/res_p_imq_unique_weight.npz", allow_pickle=True)['arr_0'][rep*len(iteration_list)+iter_idx])
+            p_centkgm_unique = np.load(f"Data/{model_name}/res_p_centkgm_unique.npz", allow_pickle=True)['arr_0'][rep*len(iteration_list)+iter_idx]
+            p_centkgm_unique_weight = renorm_w(np.load(f"Data/{model_name}/res_p_centkgm_unique_weight.npz", allow_pickle=True)['arr_0'][rep*len(iteration_list)+iter_idx])
+
+            q_imq_unique = np.load(f"Data/{model_name}/res_q_imq_unique.npz", allow_pickle=True)['arr_0'][rep*len(iteration_list)+iter_idx]
+            q_imq_unique_weight = renorm_w(np.load(f"Data/{model_name}/res_q_imq_unique_weight.npz", allow_pickle=True)['arr_0'][rep*len(iteration_list)+iter_idx])
+            q_centkgm_unique = np.load(f"Data/{model_name}/res_q_centkgm_unique.npz", allow_pickle=True)['arr_0'][rep*len(iteration_list)+iter_idx]
+            q_centkgm_unique_weight = renorm_w(np.load(f"Data/{model_name}/res_q_centkgm_unique_weight.npz", allow_pickle=True)['arr_0'][rep*len(iteration_list)+iter_idx])
+
+            # WS
+            emd = wasserstein.EMD(n_iter_max=1_000_000)
+            gs_weights = np.repeat(1/gs.shape[0], gs.shape[0])
+            p_origin_weights = np.repeat(1/p_imq_unique.shape[0], p_imq_unique.shape[0])
+
+            res_wass_p_origin[rep, iter_idx] = emd(p_origin_weights, p_imq_unique, gs_weights, gs)
+            res_wass_p_imq_weight[rep, iter_idx] = emd(p_imq_unique_weight, p_imq_unique, gs_weights, gs)
+            res_wass_p_centkgm_weight[rep, iter_idx] = emd(p_centkgm_unique_weight, p_centkgm_unique, gs_weights, gs)
+
+            res_wass_q_imq_weight[rep, iter_idx] = emd(q_imq_unique_weight, q_imq_unique, gs_weights, gs)
+            res_wass_q_centkgm_weight[rep, iter_idx] = emd(q_centkgm_unique_weight, q_centkgm_unique, gs_weights, gs)
+
+    # Save
+    ### WS MALA
+    np.save(f"{data_save_path}/res_wass_p_origin.npy", res_wass_p_origin)
+
+    ### WS P
+    np.save(f"{data_save_path}/res_wass_p_imq_weight.npy", res_wass_p_imq_weight)
+    np.save(f"{data_save_path}/res_wass_p_centkgm_weight.npy", res_wass_p_centkgm_weight)
+
+    ### WS Q
+    np.save(f"{data_save_path}/res_wass_q_imq_weight.npy", res_wass_q_imq_weight)
+    np.save(f"{data_save_path}/res_wass_q_centkgm_weight.npy", res_wass_q_centkgm_weight)
