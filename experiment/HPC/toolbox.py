@@ -859,7 +859,7 @@ def store_wwasd(
             q_centkgm_unique_weight = renorm_w(np.load(f"Data/{model_name}/res_q_centkgm_unique_weight.npz", allow_pickle=True)['arr_0'][rep*len(iteration_list)+iter_idx])
 
             # WS
-            emd = wasserstein.EMD(n_iter_max=1_000_000)
+            emd = wasserstein.EMD(n_iter_max=10_000_000)
             gs_weights = np.repeat(1/gs.shape[0], gs.shape[0])
             p_origin_weights = np.repeat(1/p_imq_unique.shape[0], p_imq_unique.shape[0])
 
