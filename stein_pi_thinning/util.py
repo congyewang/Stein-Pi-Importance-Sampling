@@ -164,6 +164,13 @@ def isPD(B):
     except np.linalg.LinAlgError:
         return False
 
+def renorm_w(w):
+    """
+    Renormalize weights
+    """
+    w_semipos = np.where(w < 0.0, 0.0, w)
+    return w_semipos/sum(w_semipos)
+
 def comp_wksd(x, s, vfk0, solver='proxqp'):
     """
     Computing Weighted Kernel Stein Discrepancy
@@ -199,7 +206,7 @@ def comp_wksd(x, s, vfk0, solver='proxqp'):
 
     wksd = np.sqrt(w @ K @ w)
 
-    return wksd, x, w
+    return wksd, x, renorm_w(w)
 
 def generate_dim_diff_pi(dim, kernel="imq", nits = 100_000):
     """
