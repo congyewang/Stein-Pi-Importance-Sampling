@@ -93,5 +93,5 @@ for i in df_plot["index"].tolist():
 
     plt.title("$\mathrm{{{0}}} ({1}D)$".format(
         i.replace("_", "\_"),
-        int(df_plot[df_plot['index'] == i]['dimensions'])), fontsize=17, fontname="cmr10")
-    plt.savefig(f"Pic/{i}_wassCurve_weight.pdf")
+        int(df_plot[df_plot['index'] == i]['dimensions'])), fontsize=17)
+    plt.savefig(f"Pic/{i}_wassCurve_weight.pdf", bbox_inches='tight')
