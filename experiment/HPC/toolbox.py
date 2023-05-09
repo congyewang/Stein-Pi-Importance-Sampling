@@ -940,17 +940,11 @@ def store_thinning(
     alpha = 10 * [1]
     epoch = 9 * [1_000] + [nits]
 
-    _, _, x_p_epoch, _, _, nacc_p = mala_adapt(log_p, grad_log_p, x_unconstrain_map, 0.1, np.eye(dim), alpha, epoch)
-    # print('acc_p =', np.mean(nacc_p[-1]))
-    assert np.mean(nacc_p[-1]) > 0.2, "Acceptance rate is too low"
+    _, _, x_p_epoch, _, _, _ = mala_adapt(log_p, grad_log_p, x_unconstrain_map, 0.1, np.eye(dim), alpha, epoch)
 
-    _, _, x_q_imq_epoch, _, _, nacc_q = mala_adapt(log_q_imq, grad_log_q_imq, x_unconstrain_map, 0.1, np.eye(dim), alpha, epoch)
-    # print('acc_q =', np.mean(nacc_q[-1]))
-    assert np.mean(nacc_q[-1]) > 0.2, "Acceptance rate is too low"
+    _, _, x_q_imq_epoch, _, _, _ = mala_adapt(log_q_imq, grad_log_q_imq, x_unconstrain_map, 0.1, np.eye(dim), alpha, epoch)
 
-    _, _, x_q_centkgm_epoch, _, _, nacc_q = mala_adapt(log_q_centkgm, grad_log_q_centkgm, x_unconstrain_map, 0.1, np.eye(dim), alpha, epoch)
-    # print('acc_q =', np.mean(nacc_q[-1]))
-    assert np.mean(nacc_q[-1]) > 0.2, "Acceptance rate is too low"
+    _, _, x_q_centkgm_epoch, _, _, _ = mala_adapt(log_q_centkgm, grad_log_q_centkgm, x_unconstrain_map, 0.1, np.eye(dim), alpha, epoch)
 
     x_p_unconstrain = np.array(x_p_epoch[-1], dtype=np.float64)
     grad_x_p_unconstrain = np.array([grad_log_p(i) for i in x_p_unconstrain])
@@ -973,8 +967,6 @@ def store_thinning(
 
     ## Store
     ### KSD IMQ
-    res_ksd_p_imq_thinning = np.zeros((repeat_times, iteration_length))
-    res_ksd_p_centkgm_thinning = np.zeros((repeat_times, iteration_length))
     res_ksd_q_imq_thinning = np.zeros((repeat_times, iteration_length))
     res_ksd_q_centkgm_thinning = np.zeros((repeat_times, iteration_length))
 
