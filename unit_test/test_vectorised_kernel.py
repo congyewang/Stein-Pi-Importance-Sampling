@@ -1,5 +1,5 @@
-from stein_pi_thinning.target import PiTargetKGM
-from stein_pi_thinning.util import vkgm, vcentkgm
+from stein_pi_is.target import PiTargetKGM
+from stein_pi_is.util import vkgm, vcentkgm
 
 import numpy as np
 from scipy.stats import wishart

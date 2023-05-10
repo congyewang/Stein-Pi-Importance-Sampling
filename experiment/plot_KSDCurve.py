@@ -3,11 +3,12 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from posteriordb import PosteriorDatabase
-from stein_pi_thinning.util import flat, mkdir, get_non_empty_subdirectories
+from stein_pi_is.util import flat, mkdir, get_non_empty_subdirectories
 
 plt.rcParams['text.usetex'] = True
 plt.rcParams["text.latex.preamble"] = r"\usepackage{amsfonts}"
 plt.rcParams["axes.formatter.use_mathtext"] = True
+
 
 # Load DataBase Locally
 pdb_path = os.path.join("posteriordb/posterior_database")
@@ -79,7 +80,6 @@ for i in df_plot["index"].tolist():
     plt.cla()
 
     plt.errorbar(iteration_list, mean_ksd_p_imq_origin, yerr=std_error_ksd_p_imq_origin, color="#7e2f8e", linestyle="dotted", capsize=4, label="$MALA$ (Langevin)")
-    # plt.errorbar(iteration_list, mean_ksd_p_centkgm_origin, yerr=std_error_ksd_p_centkgm_origin, color="#4dbeee", linestyle="dotted", capsize=4, label="$MALA$ (KGM3)")
     plt.plot(iteration_list, mean_ksd_p_centkgm_origin, color="#4dbeee", linestyle="dotted", label="$MALA$ (KGM3)")
 
     plt.errorbar(iteration_list, mean_ksd_p_imq_weight, yerr=std_error_ksd_p_imq_weight, color="#7e2f8e", linestyle="-", capsize=4, label="$P$ (Langevin)")

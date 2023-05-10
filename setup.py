@@ -2,12 +2,11 @@ from setuptools import setup
 
 
 setup(
-    name='stein_pi_thinning',
+    name='stein_pi_is',
     version='0.1.0',
-    description='Library of Stein Pi Thinning Algorithm',
-    url='https://github.com/congyewang/Stein-Pi-Thinning',
-    author='Stein Pi Thinning team',
+    description='Library of Stein Pi Importance Sampling Algorithm',
+    url='',
     license='MIT',
-    packages=['stein_pi_thinning'],
-    install_requires=['cvxopt', 'jax', 'numpy', 'proxsuite', 'qpsolvers', 'scipy', 'statsmodels', 'tqdm']
+    packages=['stein_pi_is'],
+    install_requires=['jax', 'numpy', 'proxsuite', 'qpsolvers', 'scipy', 'statsmodels', 'tqdm']
     )

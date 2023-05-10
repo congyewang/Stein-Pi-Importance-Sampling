@@ -14,8 +14,8 @@ from qpsolvers import solve_qp
 
 from stein_thinning.stein import kmat
 
-from stein_pi_thinning.mcmc import mala_adapt
-from stein_pi_thinning.target import PiTargetAuto, PiTargetIMQ, PiTargetCentKGM
+from stein_pi_is.mcmc import mala_adapt
+from stein_pi_is.target import PiTargetAuto, PiTargetIMQ, PiTargetCentKGM
 
 
 def flat(nested_list):

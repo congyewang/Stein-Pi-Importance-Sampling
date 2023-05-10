@@ -1,6 +1,0 @@
-[submodule "posteriordb"]
-	path = posteriordb
-	url = https://github.com/congyewang/posteriordb.git
-[submodule "stein_thinning"]
-	path = stein_thinning
-	url = https://github.com/congyewang/stein_thinning.git

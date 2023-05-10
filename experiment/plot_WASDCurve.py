@@ -3,14 +3,15 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from posteriordb import PosteriorDatabase
-from stein_pi_thinning.util import flat, mkdir, get_non_empty_subdirectories
+from stein_pi_is.util import flat, mkdir, get_non_empty_subdirectories
 
 plt.rcParams['text.usetex'] = True
 plt.rcParams["text.latex.preamble"] = r"\usepackage{amsfonts}"
 plt.rcParams["axes.formatter.use_mathtext"] = True
 
+
 # Load DataBase Locally
-pdb_path = os.path.join("posteriordb/posterior_database")
+pdb_path = os.path.join("../posteriordb/posterior_database")
 my_pdb = PosteriorDatabase(pdb_path)
 
 # Extract the Names of All Models
@@ -41,11 +42,9 @@ gs_models = list(set(pos).difference(set(no_gs)))
 df_gs = df.loc[gs_models].reset_index(inplace=False)
 df_gs.sort_values(by=['dimensions', 'index'], ascending=True, inplace=True)
 
-
 model_list = get_non_empty_subdirectories('Data')
 repeat_times = 10
 iteration_list = [10, 30, 50, 100, 300, 500, 1_000, 3_000]
-
 
 df_plot = df_gs[df_gs["index"].isin(model_list)]
 
