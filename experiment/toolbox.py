@@ -11,7 +11,7 @@ from stein_thinning.stein import ksd
 from stein_thinning.thinning import thin
 from stein_pi_is.target import PiTargetIMQ, PiTargetCentKGM
 from stein_pi_is.mcmc import mala_adapt
-from stein_pi_is.util import flat, comp_wksd, mkdir, nearestPD, renorm_w
+from stein_pi_is.util import flat, comp_wksd, mkdir, nearestPD
 from stein_pi_is.progress_bar import disable_progress_bar
 
 import wasserstein
@@ -278,14 +278,14 @@ def store_wwasd(
 
             # MALA IMQ KGM
             p_imq_unique = np.load(f"Data/{model_name}/res_p_imq_unique.npz", allow_pickle=True)['arr_0'][rep*len(iteration_list)+iter_idx]
-            p_imq_unique_weight = renorm_w(np.load(f"Data/{model_name}/res_p_imq_unique_weight.npz", allow_pickle=True)['arr_0'][rep*len(iteration_list)+iter_idx])
+            p_imq_unique_weight = np.load(f"Data/{model_name}/res_p_imq_unique_weight.npz", allow_pickle=True)['arr_0'][rep*len(iteration_list)+iter_idx]
             p_centkgm_unique = np.load(f"Data/{model_name}/res_p_centkgm_unique.npz", allow_pickle=True)['arr_0'][rep*len(iteration_list)+iter_idx]
-            p_centkgm_unique_weight = renorm_w(np.load(f"Data/{model_name}/res_p_centkgm_unique_weight.npz", allow_pickle=True)['arr_0'][rep*len(iteration_list)+iter_idx])
+            p_centkgm_unique_weight = np.load(f"Data/{model_name}/res_p_centkgm_unique_weight.npz", allow_pickle=True)['arr_0'][rep*len(iteration_list)+iter_idx]
 
             q_imq_unique = np.load(f"Data/{model_name}/res_q_imq_unique.npz", allow_pickle=True)['arr_0'][rep*len(iteration_list)+iter_idx]
-            q_imq_unique_weight = renorm_w(np.load(f"Data/{model_name}/res_q_imq_unique_weight.npz", allow_pickle=True)['arr_0'][rep*len(iteration_list)+iter_idx])
+            q_imq_unique_weight = np.load(f"Data/{model_name}/res_q_imq_unique_weight.npz", allow_pickle=True)['arr_0'][rep*len(iteration_list)+iter_idx]
             q_centkgm_unique = np.load(f"Data/{model_name}/res_q_centkgm_unique.npz", allow_pickle=True)['arr_0'][rep*len(iteration_list)+iter_idx]
-            q_centkgm_unique_weight = renorm_w(np.load(f"Data/{model_name}/res_q_centkgm_unique_weight.npz", allow_pickle=True)['arr_0'][rep*len(iteration_list)+iter_idx])
+            q_centkgm_unique_weight = np.load(f"Data/{model_name}/res_q_centkgm_unique_weight.npz", allow_pickle=True)['arr_0'][rep*len(iteration_list)+iter_idx]
 
             # WS
             emd = wasserstein.EMD(n_iter_max=10_000_000)
