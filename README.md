@@ -11,12 +11,12 @@ python -m pip install .
 Some of the experiments in this paper rely on the following packages
 
 - Stein Thinning
-- posteriordb
-- posteriordb-python
-- BridgeStan
-- qpsolvers
-- proxsuite
-- Wasserstein
+- [posteriordb v0.4.0](https://github.com/stan-dev/posteriordb)
+- [posteriordb-python](https://github.com/stan-dev/posteriordb-python)
+- [BridgeStan v1.0.2](https://roualdes.github.io/bridgestan/latest/)
+- [qpsolvers v3.4.0](https://github.com/qpsolvers/qpsolvers)
+- [proxsuite v0.3.7](https://github.com/Simple-Robotics/proxsuite)
+- [Wasserstein v1.1.0](https://github.com/pkomiske/Wasserstein/)
 
 The original package for Stein Thinning has been modified, and it can be installed in the following way
 
