@@ -1,2 +1,3 @@
-# Stein-Pi-Thinning
-Stein $\Pi$-Thinning
+# Stein-Pi-Importance-Sampling
+
+Stein-$\Pi$-Importance-Sampling
