@@ -23,7 +23,7 @@ disable_progress_bar()
 def store_wksd(
         model_name,
         nits=100_000,
-        dbpath="../posteriordb/posterior_database",
+        dbpath="posteriordb/posterior_database",
         s=3.0,
         iteration_list=[10, 20, 50, 100, 200, 500, 1_000, 2_000, 5_000, 10_000],
         repeat_times=10
@@ -194,7 +194,7 @@ def store_wksd(
     np.savez(f"{data_save_path}/res_q_centkgm_unique.npz", res_q_centkgm_unique)
     np.savez(f"{data_save_path}/res_q_centkgm_unique_weight.npz", res_q_centkgm_unique_weight)
 
-def output_gs_name(dbpath="../posteriordb/posterior_database"):
+def output_gs_name(dbpath="posteriordb/posterior_database"):
     # Load DataBase Locally
     pdb_path = os.path.join(dbpath)
     my_pdb = PosteriorDatabase(pdb_path)
@@ -228,7 +228,7 @@ def output_gs_name(dbpath="../posteriordb/posterior_database"):
 
 def store_wwasd(
         model_name,
-        dbpath="../posteriordb/posterior_database",
+        dbpath="posteriordb/posterior_database",
         iteration_list=[10, 30, 50, 100, 300, 500, 1_000, 3_000],
         repeat_times=10
 ):
@@ -314,7 +314,7 @@ def store_wwasd(
 def store_thinning(
         model_name,
         nits=100_000,
-        dbpath="../posteriordb/posterior_database",
+        dbpath="posteriordb/posterior_database",
         s=3.0,
         iteration_length = 3000,
         repeat_times=10

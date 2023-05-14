@@ -11,7 +11,7 @@ plt.rcParams["axes.formatter.use_mathtext"] = True
 
 
 # Load DataBase Locally
-pdb_path = os.path.join("../posteriordb/posterior_database")
+pdb_path = os.path.join("posteriordb/posterior_database")
 my_pdb = PosteriorDatabase(pdb_path)
 
 # Extract the Names of All Models

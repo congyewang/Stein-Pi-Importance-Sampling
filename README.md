@@ -25,6 +25,16 @@ cd stein_thinning
 python -m pip install .
 ```
 
-To reproduce the experiment, navigate to "experiment" and run the relevant script.
+To reproduce the experiment, first navigate to the "experiment" folder
 
-e.g. "gene_store_wksd.py" will run the benchmarking on PosteriorDB to store the numpy data files. "plot_KSDCurve.py" will plot the corresponding results.
+```bash
+cd experiment
+```
+
+and then clone the posteriordb using
+
+```bash
+git clone https://github.com/stan-dev/posteriordb.git
+```
+
+run the relevant script finally. e.g. "gene_store_wksd.py" will run the benchmarking on PosteriorDB to store the numpy data files. "plot_KSDCurve.py" will plot the corresponding results.
