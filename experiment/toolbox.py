@@ -314,9 +314,9 @@ def store_wwasd(
 def store_thinning(
         model_name,
         nits=100_000,
-        dbpath="posteriordb/posterior_database",
+        dbpath="../posteriordb/posterior_database",
         s=3.0,
-        iteration_length = 3000,
+        iteration_length=1_000,
         repeat_times=10
 ):
     # Model Preparation
@@ -402,42 +402,38 @@ def store_thinning(
     ## Thinning Method Selection
     for i in range(repeat_times):
         start_position = rng.integers(0, nits-iteration_length)
-        for j in range(iteration_length):
-            ### IMQ
-            x_q_imq_unconstrain_cutting = x_q_imq_unconstrain[start_position:start_position+j+1,:]
-            grad_x_q_imq_unconstrain_cutting = grad_x_q_imq_unconstrain[start_position:start_position+j+1,:]
-            ### KGM
-            x_q_centkgm_unconstrain_cutting = x_q_centkgm_unconstrain[start_position:start_position+j+1,:]
-            grad_x_q_centkgm_unconstrain_cutting = grad_x_q_centkgm_unconstrain[start_position:start_position+j+1,:]
+        # Run Stein Thinning
+        ### IMQ
+        x_q_imq_unconstrain_cutting = x_q_imq_unconstrain[start_position:start_position+iteration_length,:]
+        grad_x_q_imq_unconstrain_cutting = grad_x_q_imq_unconstrain[start_position:start_position+iteration_length,:]
+        ### KGM
+        x_q_centkgm_unconstrain_cutting = x_q_centkgm_unconstrain[start_position:start_position+iteration_length,:]
+        grad_x_q_centkgm_unconstrain_cutting = grad_x_q_centkgm_unconstrain[start_position:start_position+iteration_length,:]
 
-            idx_q_imq = thin(x_q_imq_unconstrain_cutting,\
-                        grad_x_q_imq_unconstrain_cutting,\
-                        j+1,\
+        idx_q_imq = thin(x_q_imq_unconstrain_cutting,\
+                    grad_x_q_imq_unconstrain_cutting,\
+                    iteration_length,\
+                    pre=linv,\
+                    stnd=False,\
+                    kern='imq'
+                )
+        idx_q_centkgm = thin(x_q_centkgm_unconstrain_cutting,\
+                        grad_x_q_centkgm_unconstrain_cutting,\
+                        iteration_length,\
                         pre=linv,\
-                        stnd=False,\
-                        kern='imq'
+                        stnd=False,
+                        kern='centkgm',
+                        xmp=x_unconstrain_map
                     )
-            idx_q_centkgm = thin(x_q_centkgm_unconstrain_cutting,\
-                            grad_x_q_centkgm_unconstrain_cutting,\
-                            j+1,\
-                            pre=linv,\
-                            stnd=False,
-                            kern='centkgm',
-                            xmp=x_unconstrain_map
-                        )
 
-            x_q_imq_thinning_unconstrain_cutting = x_q_imq_unconstrain_cutting[idx_q_imq]
-            grad_x_q_imq_thinning_unconstrain_cutting = grad_x_q_imq_unconstrain_cutting[idx_q_imq]
+        x_q_imq_thinning_unconstrain_cutting = x_q_imq_unconstrain_cutting[idx_q_imq]
+        grad_x_q_imq_thinning_unconstrain_cutting = grad_x_q_imq_unconstrain_cutting[idx_q_imq]
 
-            x_q_centkgm_thinning_unconstrain_cutting = x_q_centkgm_unconstrain_cutting[idx_q_centkgm]
-            grad_x_q_centkgm_thinning_unconstrain_cutting = grad_x_q_centkgm_unconstrain_cutting[idx_q_centkgm]
+        x_q_centkgm_thinning_unconstrain_cutting = x_q_centkgm_unconstrain_cutting[idx_q_centkgm]
+        grad_x_q_centkgm_thinning_unconstrain_cutting = grad_x_q_centkgm_unconstrain_cutting[idx_q_centkgm]
 
-            ks_q_imq_thinning = ksd(x_q_imq_thinning_unconstrain_cutting, grad_x_q_imq_thinning_unconstrain_cutting, vfk0_imq)
-            ks_q_centkgm_thinning = ksd(x_q_centkgm_thinning_unconstrain_cutting, grad_x_q_centkgm_thinning_unconstrain_cutting, vfk0_centkgm)
-
-            ### Store
-            res_ksd_q_imq_thinning[i, j] = ks_q_imq_thinning[-1]
-            res_ksd_q_centkgm_thinning[i, j] = ks_q_centkgm_thinning[-1]
+        res_ksd_q_imq_thinning[i] = ksd(x_q_imq_thinning_unconstrain_cutting, grad_x_q_imq_thinning_unconstrain_cutting, vfk0_imq)
+        res_ksd_q_centkgm_thinning[i] = ksd(x_q_centkgm_thinning_unconstrain_cutting, grad_x_q_centkgm_thinning_unconstrain_cutting, vfk0_centkgm)
 
     ## Save
     ### KSD MALA
