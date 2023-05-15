@@ -78,12 +78,12 @@ for i in model_list:
     plt.xscale('log')
     plt.yscale('log')
 
-    plt.xlabel(r'$n$', fontsize=17)
+    plt.xlabel(r'$m$', fontsize=17)
     plt.ylabel(r'$\mathbb{E}[\mathrm{KSD}]$', fontsize=17)
 
     plt.xlim((np.min(iteration_list), np.max(iteration_list)))
 
     plt.title("$\mathrm{{{0}}} ({1}D)$".format(
         i.replace("_", "\_"),
-        int(df_plot[df_plot['index'] == i]['dimensions'])), fontsize=17, fontname="cmr10")
+        int(df_plot[df_plot['index'] == i]['dimensions'])), fontsize=17)
     plt.savefig(f"Pic/Thinning/{i}_KSDCurve_thinning.pdf")
