@@ -1,4 +1,4 @@
-# Stein-Pi-Importance-Sampling
+# Stein Pi-Importance-Sampling
 
 This code accompanies the paper "Stein $\Pi$-Importance Sampling". It was written in Python 3.10.4 and also tested in Python 3.10.4.
 
