@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='stein_pi_is',
-    version='0.1.0',
+    version='0.1.1',
     description='Library of Stein Pi Importance Sampling Algorithm',
     url='',
     license='MIT',
