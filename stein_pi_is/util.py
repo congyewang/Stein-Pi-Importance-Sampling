@@ -198,7 +198,7 @@ def comp_wksd(x, s, vfk0, solver='proxqp'):
     P = 0.5 * (P + P.T) # make sure P is symmetric
     q = np.zeros(n)
     G = np.diag([-1.0]*n)
-    h = np.ones(n)
+    h = np.zeros(n)
     A = np.ones((1,n))
     b = np.array([1.0])
 
