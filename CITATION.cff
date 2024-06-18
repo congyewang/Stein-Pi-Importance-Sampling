@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+authors:
+  - family-names: "Wang"
+    given-names: "Congye"
+  - family-names: "Chen"
+    given-names: "Ye"
+  - family-names: "Kanagawa"
+    given-names: "Heishiro"
+  - family-names: "Oates"
+    given-names: "Chris J"
+title: "Stein $\backslash$Pi $-Importance Sampling"
+version: "1.0.0"
+journal: "Advances in Neural Information Processing Systems"
+date-released: "2024-01-01"
